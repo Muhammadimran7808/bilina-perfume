@@ -173,7 +173,7 @@ export default function HeroSection() {
               alt="A.S Fragrance artisanal craft"
               width={420}
               height={420}
-              className="relative rounded-sm object-contain"
+              className="relative object-contain"
             />
             {/* floating badge */}
             <div className="absolute -bottom-5 -right-5 hidden md:flex bg-[#C9A96E] text-[#0a0a0a] text-center px-6 py-4">
@@ -252,7 +252,7 @@ export default function HeroSection() {
           </h2>
           <p className="text-[#666] mb-8 max-w-md mx-auto text-[15px]">
             Use code{' '}
-            <span className="font-mono font-bold text-[#C9A96E] bg-[#C9A96E]/10 px-2 py-0.5 rounded">
+            <span className="font-mono font-bold text-[#C9A96E] bg-[#C9A96E]/10 px-2 py-0.5">
               WELCOME20
             </span>{' '}
             at checkout. New customers only.

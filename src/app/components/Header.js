@@ -129,13 +129,13 @@ export default function Header() {
             <div ref={searchRef} className="relative">
               <button
                 onClick={() => setSearchOpen(v => !v)}
-                className="w-9 h-9 flex items-center justify-center text-[#888] hover:text-[#C9A96E] transition-colors rounded-lg hover:bg-white/5"
+                className="w-9 h-9 flex items-center justify-center text-[#888] hover:text-[#C9A96E] transition-colors hover:bg-white/5"
               >
                 <Search className="w-[18px] h-[18px]" />
               </button>
 
               {searchOpen && (
-                <div className="absolute right-0 top-11 w-72 bg-[#111] border border-[#232323] rounded-xl shadow-2xl overflow-hidden">
+                <div className="absolute right-0 top-11 w-72 bg-[#111] border border-[#232323] shadow-2xl overflow-hidden">
                   <form onSubmit={goSearch} className="flex items-center px-3 py-2.5 border-b border-[#232323]">
                     <Search className="w-4 h-4 text-[#555] mr-2 shrink-0" />
                     <input
@@ -177,7 +177,7 @@ export default function Header() {
             {/* Wishlist */}
             <Link
               href="/wishlist"
-              className="relative w-9 h-9 hidden lg:flex items-center justify-center text-[#888] hover:text-[#C9A96E] transition-colors rounded-lg hover:bg-white/5"
+              className="relative w-9 h-9 hidden lg:flex items-center justify-center text-[#888] hover:text-[#C9A96E] transition-colors hover:bg-white/5"
             >
               <Heart className="w-[18px] h-[18px]" />
               {wishlistCount > 0 && (
@@ -190,7 +190,8 @@ export default function Header() {
             {/* Cart */}
             <button
               onClick={() => setCartOpen(true)}
-              className="relative w-9 h-9 hidden lg:flex items-center justify-center text-[#888] hover:text-[#C9A96E] transition-colors rounded-lg hover:bg-white/5"
+              aria-label={cartCount > 0 ? `Cart, ${cartCount} item${cartCount === 1 ? '' : 's'}` : 'Cart'}
+              className="relative w-9 h-9 flex items-center justify-center text-[#888] hover:text-[#C9A96E] transition-colors hover:bg-white/5"
             >
               <ShoppingCart className="w-[18px] h-[18px]" />
               {cartCount > 0 && (
@@ -204,12 +205,12 @@ export default function Header() {
             <div ref={userRef} className="relative hidden lg:block">
               <button
                 onClick={() => setUserOpen(v => !v)}
-                className="w-9 h-9 flex items-center justify-center text-[#888] hover:text-[#C9A96E] transition-colors rounded-lg hover:bg-white/5"
+                className="w-9 h-9 flex items-center justify-center text-[#888] hover:text-[#C9A96E] transition-colors hover:bg-white/5"
               >
                 <User className="w-[18px] h-[18px]" />
               </button>
               {userOpen && (
-                <div className="absolute right-0 top-11 w-48 bg-[#111] border border-[#232323] rounded-xl shadow-2xl overflow-hidden py-1">
+                <div className="absolute right-0 top-11 w-48 bg-[#111] border border-[#232323] shadow-2xl overflow-hidden py-1">
                   {user ? (
                     <>
                       <div className="px-4 py-3 border-b border-[#232323]">
@@ -248,7 +249,7 @@ export default function Header() {
 
       {/* ── Mobile drawer ── */}
       <div className={`fixed inset-0 z-[60] lg:hidden transition-all duration-300 ${menuOpen ? 'visible' : 'invisible'}`}>
-        <div className={`absolute inset-0 bg-black/70 transition-opacity duration-300 ${menuOpen ? 'opacity-100' : 'opacity-0'}`} onClick={() => setMenuOpen(false)} />
+        <div className={`absolute inset-0 bg-[#0a0a0a]/70 transition-opacity duration-300 ${menuOpen ? 'opacity-100' : 'opacity-0'}`} onClick={() => setMenuOpen(false)} />
         <div className={`absolute right-0 top-0 h-full w-72 bg-[#0f0f0f] border-l border-[#232323] flex flex-col transition-transform duration-300 ${menuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
           <div className="flex items-center justify-between px-6 h-16 border-b border-[#232323] shrink-0">
             <Image src="/gold-logo.png" alt="A.S Fragrance" width={36} height={36} className="object-contain" />

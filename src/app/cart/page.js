@@ -68,11 +68,11 @@ export default function Cart() {
     if (!isLoggedIn) {
       Swal.fire({
         title: 'Sign In Required',
-        html: 'Please <a href="/login" style="color:#E5A95E;text-decoration:underline;font-weight:600">sign in</a> to place your order.',
+        html: 'Please <a href="/login" style="color:#C9A96E;text-decoration:underline;font-weight:600">sign in</a> to place your order.',
         icon: 'warning',
         background: '#111',
         color: '#fff',
-        confirmButtonColor: '#E5A95E',
+        confirmButtonColor: '#C9A96E',
         confirmButtonText: 'Go to Sign In',
       }).then((result) => {
         if (result.isConfirmed) window.location.href = '/login';
@@ -108,14 +108,14 @@ export default function Cart() {
         icon: 'success',
         background: '#111',
         color: '#fff',
-        confirmButtonColor: '#E5A95E',
+        confirmButtonColor: '#C9A96E',
         confirmButtonText: 'Continue Shopping',
       }).then(() => {
         window.location.href = '/products';
       });
     } catch (err) {
       console.error('Order error:', err);
-      Swal.fire({ title: 'Error', text: 'Failed to place order. Please try again.', icon: 'error', background: '#111', color: '#fff', confirmButtonColor: '#E5A95E' });
+      Swal.fire({ title: 'Error', text: 'Failed to place order. Please try again.', icon: 'error', background: '#111', color: '#fff', confirmButtonColor: '#C9A96E' });
     } finally {
       setPlacing(false);
     }
@@ -123,14 +123,14 @@ export default function Cart() {
 
   if (cart.length === 0) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center px-4">
+      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center px-4">
         <div className="text-center">
-          <ShoppingBag className="w-20 h-20 text-gray-700 mx-auto mb-6" />
-          <h2 className="text-2xl font-bold text-white mb-3">Your cart is empty</h2>
-          <p className="text-gray-500 mb-8">Add some fragrances to get started.</p>
+          <ShoppingBag className="w-20 h-20 text-[#444] mx-auto mb-6" />
+          <h2 className="font-playfair text-2xl font-bold text-white mb-3">Your cart is empty</h2>
+          <p className="text-[#666] mb-8">Add some fragrances to get started.</p>
           <Link
             href="/products"
-            className="inline-flex items-center gap-2 bg-[#E5A95E] hover:bg-[#d49a4f] text-black font-semibold px-8 py-3 rounded-full transition-all"
+            className="inline-flex items-center gap-2 bg-[#C9A96E] hover:bg-[#E2C68A] text-black font-semibold px-8 py-3 rounded-full transition-all"
           >
             Shop Now
           </Link>
@@ -140,23 +140,23 @@ export default function Cart() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-[#0a0a0a] text-white">
       <div className="max-w-6xl mx-auto px-4 md:px-8 py-10">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
-          <Link href="/products" className="text-gray-400 hover:text-[#E5A95E] transition-colors">
+          <Link href="/products" className="text-[#888] hover:text-[#C9A96E] transition-colors">
             <ArrowLeft className="w-5 h-5" />
           </Link>
-          <h1 className="text-2xl font-bold">Shopping Cart</h1>
-          <span className="text-gray-500 text-sm">({cart.length} item{cart.length !== 1 ? 's' : ''})</span>
+          <h1 className="font-playfair text-2xl font-bold">Shopping Cart</h1>
+          <span className="text-[#666] text-sm">({cart.length} item{cart.length !== 1 ? 's' : ''})</span>
         </div>
 
         <div className="grid lg:grid-cols-3 gap-8">
           {/* ── Cart items ── */}
           <div className="lg:col-span-2 space-y-4">
             {cart.map((item) => (
-              <div key={item.id} className="flex gap-4 bg-[#0f0f0f] border border-gray-800 rounded-xl p-4">
-                <div className="w-24 h-24 bg-[#111] rounded-lg overflow-hidden shrink-0">
+              <div key={item.id} className="flex gap-4 bg-[#0f0f0f] border border-[#1e1e1e] p-4">
+                <div className="w-24 h-24 bg-[#111] overflow-hidden shrink-0">
                   <Image
                     src={item.image || item.imageUrl || '/placeholder.svg'}
                     alt={item.name}
@@ -169,11 +169,11 @@ export default function Cart() {
                   <div className="flex items-start justify-between gap-2">
                     <div>
                       <h3 className="font-semibold text-white text-sm">{item.name}</h3>
-                      <p className="text-xs text-gray-500 mt-0.5">Volume: {item.volume || '30ml'}</p>
+                      <p className="text-xs text-[#666] mt-0.5">Volume: {item.volume || '30ml'}</p>
                     </div>
                     <button
                       onClick={() => removeFromCart(item.id)}
-                      className="text-gray-600 hover:text-red-400 transition-colors shrink-0"
+                      className="text-[#555] hover:text-red-400 transition-colors shrink-0"
                       aria-label="Remove item"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -181,10 +181,10 @@ export default function Cart() {
                   </div>
                   <div className="flex items-center justify-between mt-3">
                     {/* Quantity controls */}
-                    <div className="flex items-center border border-gray-700 rounded-lg overflow-hidden">
+                    <div className="flex items-center border border-[#232323] overflow-hidden">
                       <button
                         onClick={() => updateCartQuantity(item.id, item.quantity - 1)}
-                        className="px-3 py-1.5 hover:bg-gray-800 transition-colors"
+                        className="px-3 py-1.5 hover:bg-[#161616] transition-colors"
                         disabled={item.quantity <= 1}
                       >
                         <Minus className="w-3 h-3" />
@@ -192,26 +192,26 @@ export default function Cart() {
                       <span className="px-4 py-1.5 text-sm font-semibold min-w-[2.5rem] text-center">{item.quantity}</span>
                       <button
                         onClick={() => updateCartQuantity(item.id, item.quantity + 1)}
-                        className="px-3 py-1.5 hover:bg-gray-800 transition-colors"
+                        className="px-3 py-1.5 hover:bg-[#161616] transition-colors"
                       >
                         <Plus className="w-3 h-3" />
                       </button>
                     </div>
-                    <span className="text-[#E5A95E] font-bold">Rs {(Number(item.price) * item.quantity).toLocaleString()}</span>
+                    <span className="text-[#C9A96E] font-bold">Rs {(Number(item.price) * item.quantity).toLocaleString()}</span>
                   </div>
                 </div>
               </div>
             ))}
 
             {/* Coupon */}
-            <div className="bg-[#0f0f0f] border border-gray-800 rounded-xl p-4">
+            <div className="bg-[#0f0f0f] border border-[#1e1e1e] p-4">
               <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
-                <Tag className="w-4 h-4 text-[#E5A95E]" /> Coupon Code
+                <Tag className="w-4 h-4 text-[#C9A96E]" /> Coupon Code
               </h3>
               {appliedCoupon ? (
-                <div className="flex items-center justify-between bg-[#E5A95E]/10 border border-[#E5A95E]/30 rounded-lg px-4 py-2.5">
-                  <span className="text-sm text-[#E5A95E] font-mono font-semibold">{appliedCoupon} — {COUPONS[appliedCoupon]}% off</span>
-                  <button onClick={removeCoupon} className="text-gray-500 hover:text-white text-xs">Remove</button>
+                <div className="flex items-center justify-between bg-[#C9A96E]/10 border border-[#C9A96E]/30 px-4 py-2.5">
+                  <span className="text-sm text-[#C9A96E] font-mono font-semibold">{appliedCoupon} — {COUPONS[appliedCoupon]}% off</span>
+                  <button onClick={removeCoupon} className="text-[#666] hover:text-white text-xs">Remove</button>
                 </div>
               ) : (
                 <div className="flex gap-2">
@@ -221,32 +221,32 @@ export default function Cart() {
                     value={couponInput}
                     onChange={(e) => { setCouponInput(e.target.value); setCouponError('') }}
                     onKeyDown={(e) => e.key === 'Enter' && applyCoupon()}
-                    className="flex-1 bg-[#111] border border-gray-700 focus:border-[#E5A95E]/50 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 outline-none"
+                    className="flex-1 bg-[#111] border border-[#232323] focus:border-[#C9A96E]/50 px-3 py-2 text-sm text-white placeholder-[#444] outline-none"
                   />
                   <button
                     onClick={applyCoupon}
-                    className="bg-[#E5A95E] hover:bg-[#d49a4f] text-black font-semibold px-4 py-2 rounded-lg text-sm transition-colors"
+                    className="bg-[#C9A96E] hover:bg-[#E2C68A] text-black font-semibold px-4 py-2 text-sm transition-colors"
                   >
                     Apply
                   </button>
                 </div>
               )}
               {couponError && <p className="text-red-400 text-xs mt-2">{couponError}</p>}
-              <p className="text-xs text-gray-600 mt-2">Try: WELCOME20, SAVE10, ASFF15</p>
+              <p className="text-xs text-[#555] mt-2">Try: WELCOME20, SAVE10, ASFF15</p>
             </div>
           </div>
 
           {/* ── Order summary + checkout ── */}
           <div className="space-y-4">
             {/* Summary */}
-            <div className="bg-[#0f0f0f] border border-gray-800 rounded-xl p-5">
+            <div className="bg-[#0f0f0f] border border-[#1e1e1e] p-5">
               <h3 className="text-base font-bold mb-4">Order Summary</h3>
               <div className="space-y-2.5 text-sm">
-                <div className="flex justify-between text-gray-400">
+                <div className="flex justify-between text-[#888]">
                   <span>Subtotal</span>
                   <span className="text-white">Rs {subtotal.toLocaleString()}</span>
                 </div>
-                <div className="flex justify-between text-gray-400">
+                <div className="flex justify-between text-[#888]">
                   <span>Shipping</span>
                   <span className={shipping === 0 ? 'text-green-400' : 'text-white'}>
                     {shipping === 0 ? 'Free' : `Rs ${shipping}`}
@@ -258,21 +258,21 @@ export default function Cart() {
                     <span>−Rs {discount.toLocaleString()}</span>
                   </div>
                 )}
-                <hr className="border-gray-800 my-1" />
+                <hr className="border-[#1e1e1e] my-1" />
                 <div className="flex justify-between font-bold text-base">
                   <span>Total</span>
-                  <span className="text-[#E5A95E]">Rs {total.toLocaleString()}</span>
+                  <span className="text-[#C9A96E]">Rs {total.toLocaleString()}</span>
                 </div>
               </div>
               {shipping > 0 && (
-                <p className="text-xs text-gray-500 mt-3">
+                <p className="text-xs text-[#666] mt-3">
                   Add Rs {(SHIPPING_THRESHOLD - subtotal).toLocaleString()} more for free shipping
                 </p>
               )}
             </div>
 
             {/* COD Checkout form */}
-            <div className="bg-[#0f0f0f] border border-gray-800 rounded-xl p-5">
+            <div className="bg-[#0f0f0f] border border-[#1e1e1e] p-5">
               <h3 className="text-base font-bold mb-4">Delivery Details</h3>
               <div className="space-y-3">
                 {[
@@ -289,8 +289,8 @@ export default function Cart() {
                       placeholder={placeholder}
                       value={checkoutForm[key]}
                       onChange={(e) => setCheckoutForm((f) => ({ ...f, [key]: e.target.value }))}
-                      className={`w-full bg-[#111] border rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-600 outline-none transition-colors ${
-                        formErrors[key] ? 'border-red-500' : 'border-gray-700 focus:border-[#E5A95E]/50'
+                      className={`w-full bg-[#111] border  px-3 py-2.5 text-sm text-white placeholder-[#444] outline-none transition-colors ${
+                        formErrors[key] ? 'border-red-500' : 'border-[#232323] focus:border-[#C9A96E]/50'
                       }`}
                     />
                     {formErrors[key] && <p className="text-red-400 text-xs mt-1">{formErrors[key]}</p>}
@@ -298,21 +298,21 @@ export default function Cart() {
                 ))}
               </div>
 
-              <div className="mt-4 p-3 bg-[#111] border border-gray-800 rounded-lg flex items-center gap-2">
+              <div className="mt-4 p-3 bg-[#111] border border-[#1e1e1e] flex items-center gap-2">
                 <span className="text-lg">💵</span>
                 <div>
                   <p className="text-sm font-medium text-white">Cash on Delivery</p>
-                  <p className="text-xs text-gray-500">Pay when you receive your order</p>
+                  <p className="text-xs text-[#666]">Pay when you receive your order</p>
                 </div>
               </div>
 
               <button
                 onClick={handleCheckout}
                 disabled={placing}
-                className={`w-full mt-4 font-bold py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed ${
+                className={`w-full mt-4 font-bold py-3.5  transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed ${
                   isLoggedIn
-                    ? 'bg-[#E5A95E] hover:bg-[#d49a4f] text-black hover:shadow-lg hover:shadow-[#E5A95E]/20'
-                    : 'bg-gray-700 hover:bg-gray-600 text-gray-200'
+                    ? 'bg-[#C9A96E] hover:bg-[#E2C68A] text-black hover:shadow-lg hover:shadow-[#C9A96E]/20'
+                    : 'bg-[#232323] hover:bg-[#2a2a2a] text-[#f5f5f0]'
                 }`}
               >
                 {placing ? (
@@ -325,7 +325,7 @@ export default function Cart() {
               </button>
             </div>
 
-            <Link href="/products" className="block text-center text-sm text-gray-500 hover:text-[#E5A95E] transition-colors">
+            <Link href="/products" className="block text-center text-sm text-[#666] hover:text-[#C9A96E] transition-colors">
               ← Continue Shopping
             </Link>
           </div>

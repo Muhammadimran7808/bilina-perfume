@@ -34,43 +34,43 @@ function SearchResults() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-[#0a0a0a] text-white">
       <div className="max-w-5xl mx-auto px-4 md:px-8 py-10">
         <div className="flex items-center gap-4 mb-8">
-          <button onClick={() => router.back()} className="text-gray-400 hover:text-[#E5A95E] transition-colors">
+          <button onClick={() => router.back()} className="text-[#888] hover:text-[#C9A96E] transition-colors">
             <ArrowLeft className="w-5 h-5" />
           </button>
-          <h1 className="text-2xl font-bold">Search</h1>
+          <h1 className="font-playfair text-2xl font-bold">Search</h1>
         </div>
 
         {/* Search input */}
         <form onSubmit={handleSubmit} className="relative mb-10">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#666]" />
           <input
             autoFocus
             type="text"
             placeholder="Search for fragrances..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-12 pr-4 py-4 bg-[#0f0f0f] border border-gray-800 focus:border-[#E5A95E]/50 rounded-xl text-white placeholder-gray-600 outline-none text-base"
+            className="w-full pl-12 pr-4 py-4 bg-[#0f0f0f] border border-[#1e1e1e] focus:border-[#C9A96E]/50 text-white placeholder-[#444] outline-none text-base"
           />
         </form>
 
         {/* Results */}
         {searchQuery.trim() === "" ? (
-          <p className="text-gray-500 text-center py-16">Start typing to search for perfumes…</p>
+          <p className="text-[#666] text-center py-16">Start typing to search for perfumes…</p>
         ) : results.length === 0 ? (
           <div className="text-center py-16">
             <div className="text-5xl mb-4">🔍</div>
-            <p className="text-lg font-semibold text-gray-300 mb-2">No results for "{searchQuery}"</p>
-            <p className="text-gray-500 mb-6">Try different keywords or browse our full collection.</p>
-            <Link href="/products" className="text-[#E5A95E] text-sm font-medium hover:underline">
+            <p className="text-lg font-semibold text-[#aaa] mb-2">No results for "{searchQuery}"</p>
+            <p className="text-[#666] mb-6">Try different keywords or browse our full collection.</p>
+            <Link href="/products" className="text-[#C9A96E] text-sm font-medium hover:underline">
               Browse All Products →
             </Link>
           </div>
         ) : (
           <>
-            <p className="text-sm text-gray-500 mb-6">
+            <p className="text-sm text-[#666] mb-6">
               {results.length} result{results.length !== 1 ? "s" : ""} for "{searchQuery}"
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -87,7 +87,7 @@ function SearchResults() {
 
 export default function SearchPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-black flex items-center justify-center"><div className="w-8 h-8 border-2 border-[#E5A95E] border-t-transparent rounded-full animate-spin" /></div>}>
+    <Suspense fallback={<div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center"><div className="w-8 h-8 border-2 border-[#C9A96E] border-t-transparent rounded-full animate-spin" /></div>}>
       <SearchResults />
     </Suspense>
   );

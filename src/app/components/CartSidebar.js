@@ -23,7 +23,7 @@ export default function CartSidebar({ open, onClose }) {
       {/* Backdrop */}
       <div
         onClick={onClose}
-        className={`fixed inset-0 z-[70] bg-black/60 backdrop-blur-sm transition-opacity duration-300 ${
+        className={`fixed inset-0 z-[70] bg-[#0a0a0a]/60 backdrop-blur-sm transition-opacity duration-300 ${
           open ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}
       />
@@ -47,7 +47,7 @@ export default function CartSidebar({ open, onClose }) {
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center text-[#666] hover:text-white hover:bg-[#1a1a1a] rounded-lg transition-colors"
+            className="w-8 h-8 flex items-center justify-center text-[#666] hover:text-white hover:bg-[#1a1a1a] transition-colors"
           >
             <X className="w-4.5 h-4.5" />
           </button>

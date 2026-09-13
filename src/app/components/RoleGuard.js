@@ -30,7 +30,7 @@ export default function RoleGuard({ allow = ['admin'], children }) {
   // on-screen for an unauthorised visitor while the redirect is in flight.
   if (loading || !permitted) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-black">
+      <div className="min-h-screen flex items-center justify-center bg-[#0a0a0a]">
         <p className="text-[#C9A96E] text-sm tracking-wide">
           {loading ? 'Checking permissions…' : 'Redirecting…'}
         </p>

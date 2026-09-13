@@ -153,7 +153,7 @@ export default function ProductsPage() {
   const Sidebar = () => (
     <aside className="space-y-0">
       <div className="flex items-center justify-between mb-4 pb-4 border-b border-[#1e1e1e]">
-        <h2 className="text-[11px] font-semibold text-[#C9A96E] tracking-[0.2em] uppercase">Filters</h2>
+        <h2 className="font-playfair text-[11px] font-semibold text-[#C9A96E] tracking-[0.2em] uppercase">Filters</h2>
         {activeFilterCount > 0 && (
           <button onClick={clearFilters} className="text-[11px] text-[#666] hover:text-[#C9A96E] tracking-wider uppercase transition-colors">
             Clear ({activeFilterCount})
@@ -313,10 +313,10 @@ export default function ProductsPage() {
           {/* Mobile sidebar drawer */}
           {sidebarOpen && (
             <div className="fixed inset-0 z-50 lg:hidden">
-              <div className="absolute inset-0 bg-black/80" onClick={() => setSidebarOpen(false)} />
+              <div className="absolute inset-0 bg-[#0a0a0a]/80" onClick={() => setSidebarOpen(false)} />
               <div className="absolute left-0 top-0 h-full w-72 bg-[#0d0d0d] border-r border-[#1e1e1e] overflow-y-auto p-6">
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-[11px] font-semibold text-[#C9A96E] tracking-[0.2em] uppercase">Filters</h2>
+                  <h2 className="font-playfair text-[11px] font-semibold text-[#C9A96E] tracking-[0.2em] uppercase">Filters</h2>
                   <button onClick={() => setSidebarOpen(false)}>
                     <X className="w-4 h-4 text-[#555] hover:text-white" />
                   </button>

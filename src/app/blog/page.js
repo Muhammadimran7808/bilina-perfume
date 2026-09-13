@@ -61,13 +61,13 @@ const sortOptions = ["Latest", "Popular", "Oldest"]
 
 export default function BlogPage() {
   return (
-    <div className="min-h-screen bg-black text-white px-4 md:px-8 py-16">
+    <div className="min-h-screen bg-[#0a0a0a] text-white px-4 md:px-8 py-16">
       {/* Header */}
       <div className="max-w-7xl mx-auto mb-16">
         <div className="max-w-3xl">
-          <h1 className="text-4xl md:text-5xl font-bold mb-6">Our Blog Collection</h1>
-          <h2 className="text-2xl md:text-3xl text-[#E5A95E] mb-4">Discover the Art of Perfumery</h2>
-          <p className="text-gray-300 leading-relaxed mb-8">
+          <h1 className="font-playfair text-4xl md:text-5xl font-bold mb-6">Our Blog Collection</h1>
+          <h2 className="font-playfair text-2xl md:text-3xl text-[#C9A96E] mb-4">Discover the Art of Perfumery</h2>
+          <p className="text-[#aaa] leading-relaxed mb-8">
             Welcome to Local Face's blog, where we delve deep into the enchanting world of fine fragrances. Here you'll
             find rich, informative content about the art of perfumery, from the history of iconic scents to guides on
             finding your perfect fragrance. Our expert writers share their knowledge and passion, bringing you closer to
@@ -78,13 +78,13 @@ export default function BlogPage() {
         {/* Filters */}
         <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
           <div className="relative w-full md:w-96">
-            <Input type="text" placeholder="Search articles..." className="pl-10 border-gray-800" />
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Input type="text" placeholder="Search articles..." className="pl-10 border-[#1e1e1e]" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#888]" />
           </div>
 
           <div className="flex gap-4 w-full md:w-auto">
             <Select>
-              <SelectTrigger className="w-[180px] bg-black border-black">
+              <SelectTrigger className="w-[180px] bg-[#0a0a0a] border-black">
                 <SelectValue placeholder="Filter by Category" />
               </SelectTrigger>
               <SelectContent>
@@ -97,7 +97,7 @@ export default function BlogPage() {
             </Select>
 
             <Select>
-              <SelectTrigger className="w-[140px] bg-black">
+              <SelectTrigger className="w-[140px] bg-[#0a0a0a]">
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
               <SelectContent>
@@ -120,7 +120,7 @@ export default function BlogPage() {
               key={index}
               className="group"
             >
-              <div className="relative aspect-[4/3] mb-4 overflow-hidden rounded-lg">
+              <div className="relative aspect-[4/3] mb-4 overflow-hidden">
                 <Image
                   src={post.image || "/placeholder.svg"}
                   alt={post.title}
@@ -128,13 +128,13 @@ export default function BlogPage() {
                   className="object-cover transition-transform duration-700 group-hover:scale-110"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                <div className="absolute top-4 left-4 px-3 py-1 bg-[#E5A95E] text-black text-sm rounded-full">
+                <div className="absolute top-4 left-4 px-3 py-1 bg-[#C9A96E] text-black text-sm rounded-full">
                   {post.category}
                 </div>
               </div>
-              <h3 className="text-xl font-semibold mb-3 group-hover:text-[#E5A95E] transition-colors">{post.title}</h3>
-              <p className="text-gray-400 mb-4 line-clamp-3">{post.excerpt}</p>
-              <button className="text-[#E5A95E] font-medium hover:text-[#D49A4F] transition-colors">Read More</button>
+              <h3 className="text-xl font-semibold mb-3 group-hover:text-[#C9A96E] transition-colors">{post.title}</h3>
+              <p className="text-[#888] mb-4 line-clamp-3">{post.excerpt}</p>
+              <button className="text-[#C9A96E] font-medium hover:text-[#E2C68A] transition-colors">Read More</button>
             </article>
           ))}
         </div>

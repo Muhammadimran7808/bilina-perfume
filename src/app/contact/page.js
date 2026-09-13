@@ -1,12 +1,12 @@
 export default function Contact(){
     return(
-        <div className="grid sm:grid-cols-2 items-start gap-16 p-4 mx-auto max-w-4xl  font-[sans-serif] my-20">
+        <div className="grid sm:grid-cols-2 items-start gap-16 p-4 mx-auto max-w-4xl my-20">
             <div>
-                <h1 className="text-[#E5A95E] text-3xl font-extrabold">Let's Talk</h1>
+                <h1 className="font-playfair text-[#C9A96E] text-3xl font-extrabold">Let's Talk</h1>
                 <p className="text-sm text-white mt-4">Have some big idea or brand to develop and need help? Then reach out we'd love to hear about your project  and provide help.</p>
 
                 <div className="mt-12">
-                    <h2 className="text-[#E5A95E] text-base font-bold">Email</h2>
+                    <h2 className="font-playfair text-[#C9A96E] text-base font-bold">Email</h2>
                     <ul className="mt-4">
                         <li className="flex items-center">
                             <div className="bg-[#e6e6e6cf] h-10 w-10 rounded-full flex items-center justify-center shrink-0">
@@ -26,7 +26,7 @@ export default function Contact(){
                 </div>
 
                 <div className="mt-12">
-                    <h2 className="text-[#E5A95E] text-base font-bold">Socials</h2>
+                    <h2 className="font-playfair text-[#C9A96E] text-base font-bold">Socials</h2>
 
                     <ul className="flex mt-4 space-x-4">
                         <li className="bg-[#e6e6e6cf] h-10 w-10 rounded-full flex items-center justify-center shrink-0">
@@ -65,15 +65,15 @@ export default function Contact(){
 
             <form className="ml-auto space-y-4">
                 <input type='text' placeholder='Name'
-                    className="w-full rounded-md py-3 px-4 text-gray-800 text-sm" />
+                    className="w-full bg-[#111] border border-[#232323] py-3 px-4 text-[#f5f5f0] text-sm placeholder-[#444] outline-none focus:border-[#C9A96E]/50 transition-colors" />
                 <input type='email' placeholder='Email'
-                    className="w-full rounded-md py-3 px-4 text-gray-800 text-sm" />
+                    className="w-full bg-[#111] border border-[#232323] py-3 px-4 text-[#f5f5f0] text-sm placeholder-[#444] outline-none focus:border-[#C9A96E]/50 transition-colors" />
                 <input type='text' placeholder='Subject'
-                    className="w-full rounded-md py-3 px-4 text-gray-800 text-sm" />
+                    className="w-full bg-[#111] border border-[#232323] py-3 px-4 text-[#f5f5f0] text-sm placeholder-[#444] outline-none focus:border-[#C9A96E]/50 transition-colors" />
                 <textarea placeholder='Message' rows="6"
-                    className="w-full rounded-md px-4 text-gray-800 text-sm pt-3"></textarea>
+                    className="w-full bg-[#111] border border-[#232323] py-3 px-4 text-[#f5f5f0] text-sm placeholder-[#444] outline-none focus:border-[#C9A96E]/50 transition-colors pt-3"></textarea>
                 <button type='button'
-                    className="text-white bg-gray-800 hover:bg-gray-900 tracking-wide rounded-md text-sm px-4 py-3 w-full !mt-6">Send</button>
+                    className="bg-[#C9A96E] hover:bg-[#E2C68A] text-[#0a0a0a] text-sm font-semibold tracking-wider uppercase px-4 py-3 w-full !mt-6 transition-colors">Send</button>
             </form>
         </div>
     )
