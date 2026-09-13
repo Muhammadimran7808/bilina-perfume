@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useContext, useMemo } from "react"
+import { useState, useContext, useMemo, Suspense } from "react"
+import { useSearchParams } from "next/navigation"
 import { SlidersHorizontal, X, ChevronDown, ChevronUp, Search } from "lucide-react"
 import Card from "../components/ProductCard"
 import { AppContext } from "@/context/Appcontext"
@@ -36,7 +37,7 @@ function FilterSection({ title, children, defaultOpen = false }) {
   )
 }
 
-export default function ProductsPage() {
+function ShopContent() {
   const { visibleProducts } = useContext(AppContext)
 
   // Brand is free text in the admin form, so the filter list comes from the
@@ -56,7 +57,14 @@ export default function ProductsPage() {
 
   // Filter states
   const [priceRange, setPriceRange] = useState([0, 10000])
-  const [selectedCategories, setSelectedCategories] = useState([])
+  // Seed from ?category=, so the homepage collection tiles actually filter.
+  // The links existed but nothing read the param, and the names did not match
+  // the taxonomy either, so every tile landed on an unfiltered list.
+  const searchParams = useSearchParams()
+  const categoryParam = searchParams.get("category")
+  const [selectedCategories, setSelectedCategories] = useState(
+    categoryParam ? [categoryParam] : []
+  )
   const [selectedNotes, setSelectedNotes] = useState([])
   const [selectedBrands, setSelectedBrands] = useState([])
   const [inStockOnly, setInStockOnly] = useState(false)
@@ -162,7 +170,12 @@ export default function ProductsPage() {
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE)
   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
-  const Sidebar = () => (
+  // Held as an element, not declared as a component here. A component defined
+  // inside the render is a brand new type on every keystroke, so React unmounts
+  // and remounts the whole subtree — which is why the filter search box lost
+  // focus after each character and every FilterSection sprang shut. The same
+  // bug was already fixed in the sign-in page, with a comment explaining it.
+  const sidebar = (
     <aside className="space-y-0">
       <div className="flex items-center justify-between mb-4 pb-4 border-b border-[#1e1e1e]">
         <h2 className="font-playfair text-[11px] font-semibold text-[#C9A96E] tracking-[0.2em] uppercase">Filters</h2>
@@ -319,7 +332,7 @@ export default function ProductsPage() {
         <div className="flex gap-10">
           {/* Desktop Sidebar */}
           <div className="hidden lg:block w-52 shrink-0">
-            <Sidebar />
+            {sidebar}
           </div>
 
           {/* Mobile sidebar drawer */}
@@ -333,7 +346,7 @@ export default function ProductsPage() {
                     <X className="w-4 h-4 text-[#555] hover:text-white" />
                   </button>
                 </div>
-                <Sidebar />
+                {sidebar}
               </div>
             </div>
           )}
@@ -393,5 +406,24 @@ export default function ProductsPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+/**
+ * useSearchParams opts the tree into client-side rendering, so Next requires a
+ * Suspense boundary around it or the static export of /products fails. The
+ * search page already does this.
+ */
+export default function ProductsPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-[#0a0a0a]">
+          <div className="w-7 h-7 border-2 border-[#C9A96E] border-t-transparent rounded-full animate-spin" />
+        </div>
+      }
+    >
+      <ShopContent />
+    </Suspense>
   )
 }

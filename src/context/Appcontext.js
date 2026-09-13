@@ -244,24 +244,6 @@ export const AppProvider = ({ children }) => {
     }
   };
 
-  // --- Auth guard helper ---
-  const requireAuth = useCallback((action) => {
-    if (!user) {
-      toast.warning(
-        <span>
-          Please{' '}
-          <a href="/login" style={{ color: '#C9A96E', textDecoration: 'underline', fontWeight: 600 }}>
-            sign in
-          </a>{' '}
-          to continue.
-        </span>,
-        { toastId: 'auth-required' }
-      );
-      return false;
-    }
-    return true;
-  }, [user]);
-
   // --- Cart ---
   const addToCart = useCallback((product, { silent = false } = {}) => {
     if (!silent) toast.success('Added to cart!');

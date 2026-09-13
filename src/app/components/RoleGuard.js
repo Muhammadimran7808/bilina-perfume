@@ -1,6 +1,6 @@
 'use client'
 import { useContext, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { AppContext } from '@/context/Appcontext';
 
 /**
@@ -14,17 +14,18 @@ import { AppContext } from '@/context/Appcontext';
 export default function RoleGuard({ allow = ['admin'], children }) {
   const { user, role, loading } = useContext(AppContext);
   const router = useRouter();
+  const pathname = usePathname();
 
   const permitted = !!user && allow.includes(role);
 
   useEffect(() => {
     if (loading) return;
     if (!user) {
-      router.replace('/login');
+      router.replace(`/login?next=${encodeURIComponent(pathname || '/')}`);
     } else if (!allow.includes(role)) {
       router.replace('/');
     }
-  }, [loading, user, role, allow, router]);
+  }, [loading, user, role, allow, router, pathname]);
 
   // Render nothing until the role is known, so the guarded screen never flashes
   // on-screen for an unauthorised visitor while the redirect is in flight.

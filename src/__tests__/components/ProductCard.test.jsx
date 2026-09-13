@@ -7,6 +7,12 @@ import ProductCard from '@/app/components/ProductCard'
 import { AppContext } from '@/context/Appcontext'
 
 // ── Module mocks ──────────────────────────────────────────────
+jest.mock('next/navigation', () => ({
+  useRouter: jest.fn().mockReturnValue({ push: jest.fn(), back: jest.fn() }),
+  usePathname: jest.fn().mockReturnValue('/products'),
+  useSearchParams: jest.fn().mockReturnValue(new URLSearchParams()),
+}))
+
 jest.mock('firebase/auth', () => ({
   onAuthStateChanged: jest.fn((_auth, cb) => { cb(null); return jest.fn() }),
   signInWithEmailAndPassword: jest.fn(),
@@ -112,22 +118,26 @@ describe('ProductCard – rendering', () => {
   })
 })
 
-// ── Auth-aware buttons ────────────────────────────────────────
+// ── Buy actions ───────────────────────────────────────────────
+// The card is deliberately not auth-aware. Guests build a cart and check out,
+// so it offers the same actions whether or not anyone is signed in.
 
-describe('ProductCard – auth-aware cart button', () => {
-  test('shows "Sign In to Buy" when user is not logged in', () => {
+describe('ProductCard – buy actions', () => {
+  test('offers Cart and Buy Now to a guest', () => {
     renderCard({ user: null, loading: false })
-    expect(screen.getByText(/Sign In to Buy/i)).toBeInTheDocument()
+    expect(screen.getByTitle('Add to cart')).toBeInTheDocument()
+    expect(screen.getByTitle('Buy now')).toBeInTheDocument()
   })
 
-  test('shows "Add to Cart" when user is logged in', () => {
+  test('offers the same actions to a signed-in shopper', () => {
     renderCard({ user: { uid: 'u1' }, loading: false })
-    expect(screen.getByText(/Add to Cart/i)).toBeInTheDocument()
+    expect(screen.getByTitle('Add to cart')).toBeInTheDocument()
+    expect(screen.getByTitle('Buy now')).toBeInTheDocument()
   })
 
-  test('shows "Sign In to Buy" during loading (no user yet)', () => {
-    renderCard({ user: null, loading: true })
-    expect(screen.queryByText(/Add to Cart/i)).not.toBeInTheDocument()
+  test('never asks a guest to sign in before buying', () => {
+    renderCard({ user: null, loading: false })
+    expect(screen.queryByText(/sign in/i)).not.toBeInTheDocument()
   })
 })
 

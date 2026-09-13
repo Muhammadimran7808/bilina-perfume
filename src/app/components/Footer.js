@@ -4,24 +4,24 @@ import { Facebook, Instagram, Twitter, Youtube, Send } from "lucide-react"
 import { useState } from "react"
 import { toast } from "react-toastify"
 
+// Every entry goes somewhere real. Four Shop links all pointed at an
+// unfiltered /products, "Track Your Order" pointed at the cart, and the policy
+// links were '#'. Blog is out until there is something to publish.
 const LINKS = {
   Shop: [
     { label: 'All Fragrances', href: '/products' },
-    { label: 'Best Sellers',   href: '/products' },
-    { label: 'New Arrivals',   href: '/products' },
-    { label: 'Gift Sets',      href: '/products' },
+    { label: 'For Him',        href: '/products?category=Men' },
+    { label: 'For Her',        href: '/products?category=Women' },
+    { label: 'Oud',            href: '/products?category=Oud' },
   ],
   Help: [
-    { label: 'Contact Us',      href: '/contact' },
-    { label: 'FAQs',            href: '/contact' },
-    { label: 'Returns Policy',  href: '/contact' },
-    { label: 'Track Your Order',href: '/cart' },
+    { label: 'Contact Us',   href: '/contact' },
+    { label: 'My Orders',    href: '/account' },
+    { label: 'Wishlist',     href: '/wishlist' },
   ],
   Company: [
-    { label: 'About Us',       href: '/about' },
-    { label: 'Blog',           href: '/blog' },
-    { label: 'Privacy Policy', href: '#' },
-    { label: 'Terms of Use',   href: '#' },
+    { label: 'About Us', href: '/about' },
+    { label: 'Sign In',  href: '/login' },
   ],
 }
 

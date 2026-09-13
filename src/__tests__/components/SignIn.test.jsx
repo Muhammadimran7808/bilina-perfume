@@ -10,6 +10,7 @@ import { AppContext } from '@/context/Appcontext'
 // ── Module mocks ──────────────────────────────────────────────
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn().mockReturnValue({ push: jest.fn() }),
+  useSearchParams: jest.fn().mockReturnValue(new URLSearchParams()),
 }))
 
 jest.mock('@/firebaseConfig', () => ({ auth: {} }))
@@ -262,5 +263,47 @@ describe('Sign-in page – form submission', () => {
     await user.type(screen.getByPlaceholderText('Password'), 'pass123')
     await user.click(screen.getByRole('button', { name: /create account/i }))
     expect(handleSignUp).toHaveBeenCalledWith('ali@test.com', 'pass123', 'Ali Khan')
+  })
+})
+
+// ── Return-to redirect ────────────────────────────────────────
+// Every auth entry point used to hardcode router.push('/'), so filling in the
+// cart, being bounced to sign in, and landing on the homepage with the form
+// wiped was the normal experience.
+
+describe('Sign-in page – return-to redirect', () => {
+  const { useRouter, useSearchParams } = require('next/navigation')
+
+  const signInWith = async (params) => {
+    const push = jest.fn()
+    useRouter.mockReturnValue({ push })
+    useSearchParams.mockReturnValue(new URLSearchParams(params))
+
+    const user = userEvent.setup()
+    renderPage()
+    await user.type(screen.getByPlaceholderText('Email Address'), 'user@test.com')
+    await user.type(screen.getByPlaceholderText('Password'), 'pass123')
+    await user.click(screen.getByRole('button', { name: /^sign in$/i }))
+    return push
+  }
+
+  test('returns to the page the shopper came from', async () => {
+    const push = await signInWith('next=%2Fcheckout')
+    await waitFor(() => expect(push).toHaveBeenCalledWith('/checkout'))
+  })
+
+  test('falls back to the homepage with no next param', async () => {
+    const push = await signInWith('')
+    await waitFor(() => expect(push).toHaveBeenCalledWith('/'))
+  })
+
+  test('refuses an absolute url, so login cannot bounce you off-site', async () => {
+    const push = await signInWith('next=https%3A%2F%2Fevil.test')
+    await waitFor(() => expect(push).toHaveBeenCalledWith('/'))
+  })
+
+  test('refuses a protocol-relative url', async () => {
+    const push = await signInWith('next=%2F%2Fevil.test')
+    await waitFor(() => expect(push).toHaveBeenCalledWith('/'))
   })
 })

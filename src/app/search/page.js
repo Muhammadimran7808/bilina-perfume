@@ -11,10 +11,17 @@ function SearchResults() {
   const { visibleProducts } = useContext(AppContext);
   const searchParams = useSearchParams();
   const router = useRouter();
-  const initialQuery = searchParams.get("q") || "";
+  const queryParam = searchParams.get("q") || "";
 
-  const [searchQuery, setSearchQuery] = useState(initialQuery);
+  const [searchQuery, setSearchQuery] = useState(queryParam);
   const [results, setResults] = useState([]);
+
+  // Follow the URL. The param used to seed initial state only, so using the
+  // header's search box while already on /search pushed a new URL without the
+  // component ever noticing, and the results never changed.
+  useEffect(() => {
+    setSearchQuery(queryParam);
+  }, [queryParam]);
 
   useEffect(() => {
     const q = searchQuery.trim().toLowerCase();

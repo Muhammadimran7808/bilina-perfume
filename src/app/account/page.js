@@ -44,6 +44,7 @@ export default function ProfilePage() {
   const [activeTab, setActiveTab]   = useState('profile')
   const [orders, setOrders]         = useState([])
   const [ordersLoading, setOrdersLoading] = useState(false)
+  const [ordersError, setOrdersError] = useState(null)
 
   /* profile form */
   const [displayName, setDisplayName] = useState('')
@@ -55,7 +56,7 @@ export default function ProfilePage() {
 
   /* redirect if not logged in */
   useEffect(() => {
-    if (!loading && !user) router.push('/login')
+    if (!loading && !user) router.push('/login?next=%2Faccount')
   }, [user, loading, router])
 
   /* seed display name */
@@ -76,9 +77,18 @@ export default function ProfilePage() {
         )
         const snap = await getDocs(q)
         setOrders(snap.docs.map(d => ({ id: d.id, ...d.data() })))
-      } catch {
-        /* index may not exist yet — silently fall back to empty */
+        setOrdersError(null)
+      } catch (err) {
+        // Do not swallow this. A missing composite index, a permission
+        // failure and a network drop all used to render as "No orders yet",
+        // so a customer with real orders was told they had none.
+        console.error('Error loading orders:', err)
         setOrders([])
+        setOrdersError(
+          err?.code === 'failed-precondition'
+            ? 'Order history is still being set up. Please try again shortly.'
+            : 'We could not load your orders. Please try again.'
+        )
       } finally {
         setOrdersLoading(false)
       }
@@ -243,6 +253,16 @@ export default function ProfilePage() {
                 {ordersLoading ? (
                   <div className="flex items-center justify-center py-16">
                     <div className="w-7 h-7 border-2 border-[#C9A96E] border-t-transparent rounded-full animate-spin" />
+                  </div>
+                ) : ordersError ? (
+                  <div className="border border-red-500/30 bg-red-500/5 px-4 py-6 text-center">
+                    <p className="text-sm text-red-400">{ordersError}</p>
+                    <button
+                      onClick={() => setActiveTab('orders')}
+                      className="mt-3 text-[12px] text-[#C9A96E] border-b border-[#C9A96E]/40 hover:border-[#C9A96E] pb-0.5 tracking-wider uppercase transition-colors"
+                    >
+                      Try again
+                    </button>
                   </div>
                 ) : orders.length === 0 ? (
                   <div className="text-center py-16">

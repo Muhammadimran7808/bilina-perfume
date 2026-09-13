@@ -127,17 +127,28 @@ describe('AppContext – auth state', () => {
   })
 })
 
-// ── Cart – auth guard ─────────────────────────────────────────
+// ── Cart – guests ─────────────────────────────────────────────
+// Guests build a cart and check out. Gating the cheapest, earliest step in the
+// funnel behind a sign-up costs more sales than the account data is worth, and
+// checkout accepts a guest order anyway.
 
-describe('AppContext – cart (auth guard)', () => {
-  test('addToCart blocks unauthenticated user and shows toast', async () => {
+describe('AppContext – cart (guest)', () => {
+  test('addToCart works without an account', async () => {
     render(<AppProvider><CartTester /></AppProvider>)
     await waitFor(() => expect(screen.getByTestId('cart').textContent).toBe('[]'))
 
     await act(async () => screen.getByTestId('add').click())
 
-    expect(JSON.parse(screen.getByTestId('cart').textContent)).toHaveLength(0)
-    expect(toast.warning).toHaveBeenCalled()
+    expect(JSON.parse(screen.getByTestId('cart').textContent)).toHaveLength(1)
+  })
+
+  test('does not nag a guest to sign in', async () => {
+    render(<AppProvider><CartTester /></AppProvider>)
+    await waitFor(() => expect(screen.getByTestId('cart').textContent).toBe('[]'))
+
+    await act(async () => screen.getByTestId('add').click())
+
+    expect(toast.warning).not.toHaveBeenCalled()
   })
 })
 
@@ -228,17 +239,16 @@ describe('AppContext – cart (CRUD)', () => {
   })
 })
 
-// ── Wishlist – auth guard ─────────────────────────────────────
+// ── Wishlist – guests ─────────────────────────────────────────
 
-describe('AppContext – wishlist (auth guard)', () => {
-  test('toggleWishlist blocks unauthenticated user', async () => {
+describe('AppContext – wishlist (guest)', () => {
+  test('toggleWishlist works without an account', async () => {
     render(<AppProvider><WishlistTester /></AppProvider>)
     await waitFor(() => expect(screen.getByTestId('wishlist').textContent).toBe('[]'))
 
     await act(async () => screen.getByTestId('toggle').click())
 
-    expect(JSON.parse(screen.getByTestId('wishlist').textContent)).toHaveLength(0)
-    expect(toast.warning).toHaveBeenCalled()
+    expect(JSON.parse(screen.getByTestId('wishlist').textContent)).toHaveLength(1)
   })
 })
 

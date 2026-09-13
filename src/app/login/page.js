@@ -1,9 +1,9 @@
 'use client'
 
-import { useState, useContext } from 'react'
+import { useState, useContext, Suspense } from 'react'
 import { Eye, EyeOff, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { FcGoogle } from 'react-icons/fc'
 import { AppContext } from '@/context/Appcontext'
@@ -62,9 +62,20 @@ function Divider() {
 /* ─────────────────────────────────────────
    Main page component
 ───────────────────────────────────────── */
-export default function AuthPage() {
+function AuthForm() {
   const { handleLogin, handleSignUp } = useContext(AppContext)
   const router = useRouter()
+  const searchParams = useSearchParams()
+
+  // Send people back where they were headed. Every entry point used to
+  // hardcode '/', so filling in the cart, being bounced to sign in, and
+  // landing on the homepage with the form wiped was the normal experience.
+  // Only same-origin relative paths are honoured, so ?next= cannot be used
+  // to bounce someone to another site after login.
+  const nextParam = searchParams.get('next')
+  const destination = nextParam && nextParam.startsWith('/') && !nextParam.startsWith('//')
+    ? nextParam
+    : '/' 
 
   const [showPassword, setShowPassword]   = useState(false)
   const [loading, setLoading]             = useState(false)
@@ -91,7 +102,7 @@ export default function AuthPage() {
     setLoading(true)
     const result = await handleLogin(signInForm.email, signInForm.password)
     setLoading(false)
-    if (result.success) router.push('/')
+    if (result.success) router.push(destination)
   }
 
   const onSignUp = async (e) => {
@@ -100,7 +111,7 @@ export default function AuthPage() {
     setLoading(true)
     const result = await handleSignUp(signUpForm.email, signUpForm.password, signUpForm.name)
     setLoading(false)
-    if (result.success) router.push('/')
+    if (result.success) router.push(destination)
   }
 
   const handleGoogle = async () => {
@@ -108,7 +119,7 @@ export default function AuthPage() {
       const provider = new GoogleAuthProvider()
       await signInWithPopup(auth, provider)
       toast.success('Signed in with Google!')
-      router.push('/')
+      router.push(destination)
     } catch (err) {
       toast.error(err.message)
     }
@@ -245,5 +256,21 @@ export default function AuthPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+// Reading ?next= opts this tree into client rendering, so Next needs a
+// Suspense boundary here or the static export of /login fails.
+export default function AuthPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-[#0a0a0a]">
+          <div className="w-7 h-7 border-2 border-[#C9A96E] border-t-transparent rounded-full animate-spin" />
+        </div>
+      }
+    >
+      <AuthForm />
+    </Suspense>
   )
 }

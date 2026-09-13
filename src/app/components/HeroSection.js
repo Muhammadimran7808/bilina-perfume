@@ -30,13 +30,17 @@ function Stat({ value, label }) {
   )
 }
 
+// Names must match PRODUCT_CATEGORIES exactly, since each tile links to
+// /products?category=<name>. They used to be invented labels — "Oud & Woods",
+// "Fresh & Aqua", "Night Noir" — none of which any product could carry, so
+// every tile landed on an unfiltered shop.
 const CATEGORIES = [
-  { name: 'Oud & Woods',    sub: 'Deep & Earthy',       gradient: 'from-amber-950/60' },
-  { name: 'Floral',         sub: 'Light & Feminine',    gradient: 'from-rose-950/60' },
-  { name: 'Fresh & Aqua',   sub: 'Crisp & Clean',       gradient: 'from-sky-950/60' },
-  { name: 'Oriental',       sub: 'Warm & Sensual',      gradient: 'from-violet-950/60' },
-  { name: 'Citrus',         sub: 'Bright & Energetic',  gradient: 'from-yellow-950/60' },
-  { name: 'Night Noir',     sub: 'Dark & Mysterious',   gradient: 'from-slate-900/80' },
+  { name: 'Oud',      sub: 'Deep & Earthy',      gradient: 'from-amber-950/60' },
+  { name: 'Floral',   sub: 'Light & Feminine',   gradient: 'from-rose-950/60' },
+  { name: 'Fresh',    sub: 'Crisp & Clean',      gradient: 'from-sky-950/60' },
+  { name: 'Woody',    sub: 'Dark & Grounding',   gradient: 'from-slate-900/80' },
+  { name: 'Oriental', sub: 'Warm & Sensual',     gradient: 'from-violet-950/60' },
+  { name: 'Citrus',   sub: 'Bright & Energetic', gradient: 'from-yellow-950/60' },
 ]
 
 export default function HeroSection() {
@@ -100,11 +104,17 @@ export default function HeroSection() {
               </Link>
             </div>
 
-            {/* Stats */}
+            {/* Trust markers. Derived from real data where possible, and
+                otherwise a policy the shop honours — never an invented number. */}
             <div className="flex gap-10 pt-8 border-t border-white/10">
-              <Stat value="50+" label="Fragrances" />
-              <Stat value="10K+" label="Customers" />
-              <Stat value="4.9★" label="Avg Rating" />
+              {visibleProducts.length > 0 && (
+                <Stat
+                  value={`${visibleProducts.length}`}
+                  label={visibleProducts.length === 1 ? 'Fragrance' : 'Fragrances'}
+                />
+              )}
+              <Stat value="100%" label="Authentic" />
+              <Stat value="COD" label="Pay on delivery" />
             </div>
           </div>
 
@@ -178,8 +188,8 @@ export default function HeroSection() {
             {/* floating badge */}
             <div className="absolute -bottom-5 -right-5 hidden md:flex bg-[#C9A96E] text-[#0a0a0a] text-center px-6 py-4">
               <div>
-                <div className="font-playfair text-3xl font-bold leading-none">10+</div>
-                <div className="text-[10px] font-semibold tracking-widest uppercase mt-1">Years of craft</div>
+                <div className="font-playfair text-3xl font-bold leading-none">100%</div>
+                <div className="text-[10px] font-semibold tracking-widest uppercase mt-1">Authentic</div>
               </div>
             </div>
           </div>

@@ -12,7 +12,7 @@ const NAV = [
   { name: 'Shop',    href: '/products' },
   { name: 'About',   href: '/about' },
   { name: 'Contact', href: '/contact' },
-  { name: 'Blog',    href: '/blog' },
+  // Blog is hidden until there are real posts; the route still exists.
 ];
 
 const ANNOUNCEMENTS = [
