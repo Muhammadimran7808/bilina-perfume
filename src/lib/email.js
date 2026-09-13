@@ -185,3 +185,49 @@ export async function sendOrderEmails(order) {
 
   return result;
 }
+
+/**
+ * Forward a contact-form message to the shop.
+ *
+ * replyTo is the sender, so hitting Reply in the inbox answers the customer
+ * directly rather than the no-reply sending address.
+ */
+export async function sendContactEmail({ name, email, subject, message }) {
+  const resend = getClient();
+  const admins = getAdminEmails();
+  if (!resend || admins.length === 0) {
+    console.warn('Contact email not sent: RESEND_API_KEY or ADMIN_EMAILS is missing.');
+    return { sent: false };
+  }
+
+  await resend.emails.send({
+    from: FROM,
+    to: admins,
+    replyTo: email,
+    subject: `Contact form: ${subject || 'New message'}`,
+    html: shell(
+      subject || 'New message',
+      `<p style="margin:0 0 16px;font-size:14px;line-height:1.7;">
+         <strong>${esc(name)}</strong><br/>
+         <a href="mailto:${esc(email)}" style="color:#9a7b3f;">${esc(email)}</a>
+       </p>
+       <div style="border-top:1px solid #eee;padding-top:16px;font-size:14px;line-height:1.7;white-space:pre-wrap;">${esc(message)}</div>`
+    ),
+  });
+  return { sent: true };
+}
+
+/** Newsletter sign-ups are stored, not emailed; this just tells the shop. */
+export async function sendSubscriberNotice(email) {
+  const resend = getClient();
+  const admins = getAdminEmails();
+  if (!resend || admins.length === 0) return { sent: false };
+
+  await resend.emails.send({
+    from: FROM,
+    to: admins,
+    subject: 'New newsletter subscriber',
+    html: shell('New subscriber', `<p style="font-size:14px;">${esc(email)}</p>`),
+  });
+  return { sent: true };
+}

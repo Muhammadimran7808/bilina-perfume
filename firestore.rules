@@ -65,6 +65,14 @@ service cloud.firestore {
       allow read, write: if isAdmin();
     }
 
+    // --- Newsletter subscribers ----------------------------------------------
+    // Written only by POST /api/subscribe via the Admin SDK. Clients get no
+    // access at all, so the mailing list cannot be harvested.
+    match /subscribers/{email} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
     // Anything not matched above is denied by default.
   }
 }

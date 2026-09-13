@@ -2,6 +2,7 @@
 import Link from "next/link"
 import { Facebook, Instagram, Twitter, Youtube, Send } from "lucide-react"
 import { useState } from "react"
+import { toast } from "react-toastify"
 
 const LINKS = {
   Shop: [
@@ -28,9 +29,34 @@ export default function Footer() {
   const [email, setEmail] = useState('')
   const [subscribed, setSubscribed] = useState(false)
 
-  const handleSubscribe = (e) => {
+  const [saving, setSaving] = useState(false)
+
+  // This used to flip a flag and throw the address away.
+  const handleSubscribe = async (e) => {
     e.preventDefault()
-    if (email.trim()) { setSubscribed(true); setEmail('') }
+    const value = email.trim()
+    if (!value || saving) return
+
+    setSaving(true)
+    try {
+      const res = await fetch('/api/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: value }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        toast.error(data.error || 'Could not sign you up.')
+        return
+      }
+      setSubscribed(true)
+      setEmail('')
+      if (data.alreadySubscribed) toast.info('You are already on the list.')
+    } catch {
+      toast.error('Could not reach the server. Please try again.')
+    } finally {
+      setSaving(false)
+    }
   }
 
   return (
@@ -59,7 +85,8 @@ export default function Footer() {
                 />
                 <button
                   type="submit"
-                  className="bg-[#C9A96E] hover:bg-[#E2C68A] text-[#0a0a0a] px-5 py-3 flex items-center gap-2 text-sm font-semibold tracking-wide transition-colors shrink-0"
+                  disabled={saving}
+                  className="bg-[#C9A96E] hover:bg-[#E2C68A] disabled:opacity-60 text-[#0a0a0a] px-5 py-3 flex items-center gap-2 text-sm font-semibold tracking-wide transition-colors shrink-0"
                 >
                   <Send className="w-4 h-4" />
                   <span className="hidden sm:inline">Subscribe</span>
