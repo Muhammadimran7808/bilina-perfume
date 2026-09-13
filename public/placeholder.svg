@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600" role="img" aria-label="Image unavailable">
+  <rect width="600" height="600" fill="#111111"/>
+  <g fill="none" stroke="#C9A96E" stroke-opacity="0.35" stroke-width="6" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M268 150h64v46h-64z"/>
+    <path d="M246 196h108a30 30 0 0 1 30 30v188a30 30 0 0 1-30 30H246a30 30 0 0 1-30-30V226a30 30 0 0 1 30-30z"/>
+    <path d="M262 258h76"/>
+  </g>
+  <text x="300" y="502" fill="#555555" font-family="Georgia, serif" font-size="26" text-anchor="middle" letter-spacing="3">No image</text>
+</svg>

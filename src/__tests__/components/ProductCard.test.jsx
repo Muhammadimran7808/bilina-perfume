@@ -98,7 +98,7 @@ describe('ProductCard – rendering', () => {
   test('wraps card in a link to the product detail page', () => {
     renderCard()
     const link = screen.getByRole('link')
-    expect(link).toHaveAttribute('href', '/Product-Details/prod1')
+    expect(link).toHaveAttribute('href', '/products/prod1')
   })
 
   test('renders review count when reviews > 0', () => {

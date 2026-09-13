@@ -14,12 +14,14 @@ module.exports = {
         playfair: ['var(--font-playfair)', 'Georgia', 'serif'],
         jost: ['var(--font-jost)', 'system-ui', 'sans-serif'],
       },
-      colors: {
-        gold: '#C9A96E',
-        'gold-light': '#E2C68A',
-        'gold-dark': '#A8864E',
-      },
   		colors: {
+  			// Brand gold. Defined here rather than in a second `colors` object,
+  			// which a duplicate key silently discarded.
+  			gold: {
+  				DEFAULT: '#C9A96E',
+  				light: '#E2C68A',
+  				dark: '#A8864E',
+  			},
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
   			card: {

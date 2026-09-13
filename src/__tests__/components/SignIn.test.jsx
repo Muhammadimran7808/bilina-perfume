@@ -4,7 +4,7 @@
  */
 import { render, screen, within, waitFor, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import AuthPage from '@/app/Sign-in/page'
+import AuthPage from '@/app/login/page'
 import { AppContext } from '@/context/Appcontext'
 
 // ── Module mocks ──────────────────────────────────────────────

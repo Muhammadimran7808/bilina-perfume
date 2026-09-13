@@ -5,20 +5,20 @@ import { useState } from "react"
 
 const LINKS = {
   Shop: [
-    { label: 'All Fragrances', href: '/ProductList' },
-    { label: 'Best Sellers',   href: '/ProductList' },
-    { label: 'New Arrivals',   href: '/ProductList' },
-    { label: 'Gift Sets',      href: '/ProductList' },
+    { label: 'All Fragrances', href: '/products' },
+    { label: 'Best Sellers',   href: '/products' },
+    { label: 'New Arrivals',   href: '/products' },
+    { label: 'Gift Sets',      href: '/products' },
   ],
   Help: [
-    { label: 'Contact Us',      href: '/Contact-Us' },
-    { label: 'FAQs',            href: '/Contact-Us' },
-    { label: 'Returns Policy',  href: '/Contact-Us' },
-    { label: 'Track Your Order',href: '/Cart' },
+    { label: 'Contact Us',      href: '/contact' },
+    { label: 'FAQs',            href: '/contact' },
+    { label: 'Returns Policy',  href: '/contact' },
+    { label: 'Track Your Order',href: '/cart' },
   ],
   Company: [
-    { label: 'About Us',       href: '/About-Us' },
-    { label: 'Blog',           href: '/Blogs' },
+    { label: 'About Us',       href: '/about' },
+    { label: 'Blog',           href: '/blog' },
     { label: 'Privacy Policy', href: '#' },
     { label: 'Terms of Use',   href: '#' },
   ],

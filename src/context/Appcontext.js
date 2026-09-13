@@ -193,7 +193,7 @@ export const AppProvider = ({ children }) => {
       toast.warning(
         <span>
           Please{' '}
-          <a href="/Sign-in" style={{ color: '#E5A95E', textDecoration: 'underline', fontWeight: 600 }}>
+          <a href="/login" style={{ color: '#E5A95E', textDecoration: 'underline', fontWeight: 600 }}>
             sign in
           </a>{' '}
           to continue.

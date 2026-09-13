@@ -9,10 +9,10 @@ import Image from 'next/image';
 
 const NAV = [
   { name: 'Home',    href: '/' },
-  { name: 'Shop',    href: '/ProductList' },
-  { name: 'About',   href: '/About-Us' },
-  { name: 'Contact', href: '/Contact-Us' },
-  { name: 'Blog',    href: '/Blogs' },
+  { name: 'Shop',    href: '/products' },
+  { name: 'About',   href: '/about' },
+  { name: 'Contact', href: '/contact' },
+  { name: 'Blog',    href: '/blog' },
 ];
 
 const ANNOUNCEMENTS = [
@@ -65,12 +65,12 @@ export default function Header() {
   const goSearch = (e) => {
     e.preventDefault();
     if (!query.trim()) return;
-    router.push(`/Search?q=${encodeURIComponent(query.trim())}`);
+    router.push(`/search?q=${encodeURIComponent(query.trim())}`);
     setSearchOpen(false); setQuery(''); setSuggestions([]);
   };
 
   const goProduct = (id) => {
-    router.push(`/Product-Details/${id}`);
+    router.push(`/products/${id}`);
     setSearchOpen(false); setQuery(''); setSuggestions([]);
   };
 
@@ -176,7 +176,7 @@ export default function Header() {
 
             {/* Wishlist */}
             <Link
-              href="/Wishlist"
+              href="/wishlist"
               className="relative w-9 h-9 hidden lg:flex items-center justify-center text-[#888] hover:text-[#C9A96E] transition-colors rounded-lg hover:bg-white/5"
             >
               <Heart className="w-[18px] h-[18px]" />
@@ -216,16 +216,16 @@ export default function Header() {
                         <p className="text-[11px] text-[#555] tracking-wider uppercase">Signed in as</p>
                         <p className="text-sm text-white truncate mt-0.5">{user.displayName || user.email}</p>
                       </div>
-                      <Link href="/Profile" onClick={() => setUserOpen(false)} className="block px-4 py-2.5 text-[13px] text-[#aaa] hover:bg-[#1a1a1a] hover:text-[#C9A96E]">My Profile</Link>
-                      <Link href="/Orders"  onClick={() => setUserOpen(false)} className="block px-4 py-2.5 text-[13px] text-[#aaa] hover:bg-[#1a1a1a] hover:text-[#C9A96E]">Order History</Link>
+                      <Link href="/account" onClick={() => setUserOpen(false)} className="block px-4 py-2.5 text-[13px] text-[#aaa] hover:bg-[#1a1a1a] hover:text-[#C9A96E]">My Profile</Link>
+                      <Link href="/account"  onClick={() => setUserOpen(false)} className="block px-4 py-2.5 text-[13px] text-[#aaa] hover:bg-[#1a1a1a] hover:text-[#C9A96E]">Order History</Link>
                       <button onClick={() => { handleLogout(); setUserOpen(false); }} className="w-full text-left px-4 py-2.5 text-[13px] text-red-400 hover:bg-[#1a1a1a] flex items-center gap-2">
                         <LogOut className="w-3.5 h-3.5" /> Sign Out
                       </button>
                     </>
                   ) : (
                     <>
-                      <Link href="/Sign-in" onClick={() => setUserOpen(false)} className="block px-4 py-2.5 text-[13px] text-[#aaa] hover:bg-[#1a1a1a] hover:text-[#C9A96E]">Sign In</Link>
-                      <Link href="/Sign-in" onClick={() => setUserOpen(false)} className="block px-4 py-2.5 text-[13px] text-[#C9A96E] hover:bg-[#1a1a1a]">Create Account</Link>
+                      <Link href="/login" onClick={() => setUserOpen(false)} className="block px-4 py-2.5 text-[13px] text-[#aaa] hover:bg-[#1a1a1a] hover:text-[#C9A96E]">Sign In</Link>
+                      <Link href="/login" onClick={() => setUserOpen(false)} className="block px-4 py-2.5 text-[13px] text-[#C9A96E] hover:bg-[#1a1a1a]">Create Account</Link>
                     </>
                   )}
                 </div>
@@ -282,7 +282,7 @@ export default function Header() {
             </button>
           </nav>
           <div className="px-6 py-5 border-t border-[#232323] flex items-center gap-5">
-            <Link href="/Wishlist" onClick={() => setMenuOpen(false)} className="relative text-[#888] hover:text-[#C9A96E]">
+            <Link href="/wishlist" onClick={() => setMenuOpen(false)} className="relative text-[#888] hover:text-[#C9A96E]">
               <Heart className="w-5 h-5" />
               {wishlistCount > 0 && <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-[#C9A96E] text-[#0a0a0a] text-[9px] font-bold rounded-full flex items-center justify-center">{wishlistCount}</span>}
             </Link>
@@ -293,7 +293,7 @@ export default function Header() {
               <ShoppingCart className="w-5 h-5" />
               {cartCount > 0 && <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-[#C9A96E] text-[#0a0a0a] text-[9px] font-bold rounded-full flex items-center justify-center">{cartCount}</span>}
             </button>
-            <Link href="/Sign-in" onClick={() => setMenuOpen(false)} className="text-[#888] hover:text-[#C9A96E]">
+            <Link href="/login" onClick={() => setMenuOpen(false)} className="text-[#888] hover:text-[#C9A96E]">
               <User className="w-5 h-5" />
             </Link>
           </div>

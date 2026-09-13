@@ -3,7 +3,7 @@
  * Verifies empty state, item rendering, and user interactions.
  */
 import { render, screen, fireEvent } from '@testing-library/react'
-import WishlistPage from '@/app/Wishlist/page'
+import WishlistPage from '@/app/wishlist/page'
 import { AppContext } from '@/context/Appcontext'
 
 // ── Module mocks ──────────────────────────────────────────────

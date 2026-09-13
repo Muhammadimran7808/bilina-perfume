@@ -27,7 +27,7 @@ export default function WishlistPage() {
           <h2 className="text-2xl font-bold text-white mb-3">Your wishlist is empty</h2>
           <p className="text-gray-500 mb-8">Save fragrances you love to revisit them later.</p>
           <Link
-            href="/ProductList"
+            href="/products"
             className="inline-flex items-center gap-2 bg-[#E5A95E] hover:bg-[#d49a4f] text-black font-semibold px-8 py-3 rounded-full transition-all"
           >
             Explore Perfumes
@@ -42,7 +42,7 @@ export default function WishlistPage() {
       <div className="max-w-5xl mx-auto px-4 md:px-8 py-10">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
-          <Link href="/ProductList" className="text-gray-400 hover:text-[#E5A95E] transition-colors">
+          <Link href="/products" className="text-gray-400 hover:text-[#E5A95E] transition-colors">
             <ArrowLeft className="w-5 h-5" />
           </Link>
           <h1 className="text-2xl font-bold">My Wishlist</h1>

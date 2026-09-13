@@ -119,7 +119,7 @@ export default function Checkout() {
         confirmButtonColor: '#E5A95E',
         confirmButtonText: 'Continue Shopping',
       }).then(() => {
-        window.location.href = '/ProductList';
+        window.location.href = '/products';
       });
     } catch (err) {
       console.error('Order error:', err);
@@ -137,7 +137,7 @@ export default function Checkout() {
           <h2 className="text-2xl font-bold text-white mb-3">Your cart is empty</h2>
           <p className="text-gray-500 mb-8">Add some fragrances to get started.</p>
           <Link
-            href="/ProductList"
+            href="/products"
             className="inline-flex items-center gap-2 bg-[#E5A95E] hover:bg-[#d49a4f] text-black font-semibold px-8 py-3 rounded-full transition-all"
           >
             Shop Now
@@ -152,7 +152,7 @@ export default function Checkout() {
       <div className="max-w-6xl mx-auto px-4 md:px-8 py-10">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
-          <Link href="/ProductList" className="text-gray-400 hover:text-[#E5A95E] transition-colors">
+          <Link href="/products" className="text-gray-400 hover:text-[#E5A95E] transition-colors">
             <ArrowLeft className="w-5 h-5" />
           </Link>
           <h1 className="text-2xl font-bold">Checkout</h1>
@@ -587,7 +587,7 @@ export default function Checkout() {
               </button>
             </div>
 
-            <Link href="/ProductList" className="block text-center text-sm text-gray-500 hover:text-[#E5A95E] transition-colors">
+            <Link href="/products" className="block text-center text-sm text-gray-500 hover:text-[#E5A95E] transition-colors">
               ← Continue Shopping
             </Link>
           </div>

@@ -20,7 +20,7 @@ export default function RoleGuard({ allow = ['admin'], children }) {
   useEffect(() => {
     if (loading) return;
     if (!user) {
-      router.replace('/Sign-in');
+      router.replace('/login');
     } else if (!allow.includes(role)) {
       router.replace('/');
     }

@@ -30,7 +30,7 @@ function SearchResults() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    router.push(`/Search?q=${encodeURIComponent(searchQuery.trim())}`);
+    router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
   };
 
   return (
@@ -64,7 +64,7 @@ function SearchResults() {
             <div className="text-5xl mb-4">🔍</div>
             <p className="text-lg font-semibold text-gray-300 mb-2">No results for "{searchQuery}"</p>
             <p className="text-gray-500 mb-6">Try different keywords or browse our full collection.</p>
-            <Link href="/ProductList" className="text-[#E5A95E] text-sm font-medium hover:underline">
+            <Link href="/products" className="text-[#E5A95E] text-sm font-medium hover:underline">
               Browse All Products →
             </Link>
           </div>

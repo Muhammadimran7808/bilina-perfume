@@ -55,7 +55,7 @@ export default function ProfilePage() {
 
   /* redirect if not logged in */
   useEffect(() => {
-    if (!loading && !user) router.push('/Sign-in')
+    if (!loading && !user) router.push('/login')
   }, [user, loading, router])
 
   /* seed display name */
@@ -248,7 +248,7 @@ export default function ProfilePage() {
                   <div className="text-center py-16">
                     <Package className="w-14 h-14 text-[#2a2a2a] mx-auto mb-4" />
                     <p className="text-[#555] text-sm">No orders yet</p>
-                    <Link href="/ProductList" className="mt-4 inline-block text-[12px] text-[#C9A96E] border-b border-[#C9A96E]/40 hover:border-[#C9A96E] pb-0.5 tracking-wider uppercase transition-colors">
+                    <Link href="/products" className="mt-4 inline-block text-[12px] text-[#C9A96E] border-b border-[#C9A96E]/40 hover:border-[#C9A96E] pb-0.5 tracking-wider uppercase transition-colors">
                       Start Shopping
                     </Link>
                   </div>
@@ -301,7 +301,7 @@ export default function ProfilePage() {
                   <div className="text-center py-16">
                     <Heart className="w-14 h-14 text-[#2a2a2a] mx-auto mb-4" />
                     <p className="text-[#555] text-sm">Your wishlist is empty</p>
-                    <Link href="/ProductList" className="mt-4 inline-block text-[12px] text-[#C9A96E] border-b border-[#C9A96E]/40 hover:border-[#C9A96E] pb-0.5 tracking-wider uppercase transition-colors">
+                    <Link href="/products" className="mt-4 inline-block text-[12px] text-[#C9A96E] border-b border-[#C9A96E]/40 hover:border-[#C9A96E] pb-0.5 tracking-wider uppercase transition-colors">
                       Explore Products
                     </Link>
                   </div>
@@ -310,7 +310,7 @@ export default function ProfilePage() {
                     {wishlist.map(item => (
                       <Link
                         key={item.id}
-                        href={`/Product-Details/${item.id}`}
+                        href={`/products/${item.id}`}
                         className="flex items-center gap-4 p-4 border border-[#1e1e1e] hover:border-[#C9A96E]/30 transition-colors group"
                       >
                         <div className="w-16 h-16 bg-[#131313] border border-[#1e1e1e] flex items-center justify-center shrink-0 overflow-hidden">

@@ -4,13 +4,13 @@
  */
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import Cart from '@/app/Cart/page'
+import Cart from '@/app/cart/page'
 import { AppContext } from '@/context/Appcontext'
 
 // ── Module mocks ──────────────────────────────────────────────
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn().mockReturnValue({ push: jest.fn(), back: jest.fn() }),
-  usePathname: jest.fn().mockReturnValue('/Cart'),
+  usePathname: jest.fn().mockReturnValue('/cart'),
 }))
 
 jest.mock('firebase/auth', () => ({

@@ -86,14 +86,14 @@ export default function HeroSection() {
             {/* CTAs */}
             <div className="flex flex-wrap items-center gap-4 mb-14">
               <button
-                onClick={() => router.push('/ProductList')}
+                onClick={() => router.push('/products')}
                 className="group flex items-center gap-2.5 bg-[#C9A96E] hover:bg-[#E2C68A] text-[#0a0a0a] text-sm font-semibold tracking-wider uppercase px-8 py-3.5 transition-all duration-300 hover:shadow-xl hover:shadow-[#C9A96E]/20 hover:-translate-y-0.5"
               >
                 Explore Collection
                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
               </button>
               <Link
-                href="/About-Us"
+                href="/about"
                 className="flex items-center gap-2 text-[#888] hover:text-[#C9A96E] text-sm font-medium tracking-wider uppercase border-b border-transparent hover:border-[#C9A96E] transition-all pb-0.5"
               >
                 Our Story <ArrowUpRight className="w-3.5 h-3.5" />
@@ -151,7 +151,7 @@ export default function HeroSection() {
           </div>
           <div className="text-center mt-10">
             <Link
-              href="/ProductList"
+              href="/products"
               className="inline-flex items-center gap-2 text-[13px] text-[#C9A96E] border border-[#C9A96E]/40 hover:border-[#C9A96E] hover:bg-[#C9A96E]/5 px-8 py-3 tracking-wider uppercase transition-all"
             >
               View All Products <ArrowRight className="w-4 h-4" />
@@ -200,7 +200,7 @@ export default function HeroSection() {
               every bottle a statement.
             </p>
             <Link
-              href="/About-Us"
+              href="/about"
               className="group inline-flex items-center gap-3 text-[13px] font-semibold tracking-[0.15em] uppercase text-[#C9A96E] border-b border-[#C9A96E]/40 hover:border-[#C9A96E] pb-1 transition-all"
             >
               Discover Our Story
@@ -219,7 +219,7 @@ export default function HeroSection() {
           {CATEGORIES.map(cat => (
             <Link
               key={cat.name}
-              href={`/ProductList?category=${encodeURIComponent(cat.name)}`}
+              href={`/products?category=${encodeURIComponent(cat.name)}`}
               className={`relative group overflow-hidden bg-gradient-to-b ${cat.gradient} to-[#0a0a0a] border border-[#1e1e1e] hover:border-[#C9A96E]/40 transition-all duration-400`}
             >
               <div className="px-6 py-8 md:py-10">
@@ -258,7 +258,7 @@ export default function HeroSection() {
             at checkout. New customers only.
           </p>
           <button
-            onClick={() => router.push('/ProductList')}
+            onClick={() => router.push('/products')}
             className="bg-[#C9A96E] hover:bg-[#E2C68A] text-[#0a0a0a] text-sm font-semibold tracking-wider uppercase px-10 py-3.5 transition-all hover:shadow-xl hover:shadow-[#C9A96E]/20 hover:-translate-y-0.5"
           >
             Shop the Collection

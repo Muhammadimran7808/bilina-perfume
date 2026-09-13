@@ -29,7 +29,7 @@ export default function Card({ products, index }) {
     e.preventDefault();
     e.stopPropagation();
     addToCart(cartItem, { silent: true });
-    router.push('/Checkout');
+    router.push('/checkout');
   };
 
   const handleWishlist = (e) => {
@@ -48,7 +48,7 @@ export default function Card({ products, index }) {
 
 
   return (
-    <Link href={`/Product-Details/${products.id}`} className="block group card-shine">
+    <Link href={`/products/${products.id}`} className="block group card-shine">
       <div className="bg-[#111] border border-[#1e1e1e] group-hover:border-[#C9A96E]/30 transition-all duration-400">
 
         {/* Image area */}

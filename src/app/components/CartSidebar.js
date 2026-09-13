@@ -92,7 +92,7 @@ export default function CartSidebar({ open, onClose }) {
               <div key={item.id} className="flex gap-3">
                 {/* Image */}
                 <Link
-                  href={`/Product-Details/${item.id}`}
+                  href={`/products/${item.id}`}
                   onClick={onClose}
                   className="w-20 h-20 bg-[#111] border border-[#1e1e1e] shrink-0 overflow-hidden"
                 >
@@ -109,7 +109,7 @@ export default function CartSidebar({ open, onClose }) {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between gap-1">
                     <Link
-                      href={`/Product-Details/${item.id}`}
+                      href={`/products/${item.id}`}
                       onClick={onClose}
                       className="text-[13px] font-medium text-[#e0e0e0] hover:text-[#C9A96E] leading-snug line-clamp-2 transition-colors"
                     >
@@ -175,7 +175,7 @@ export default function CartSidebar({ open, onClose }) {
 
             {/* Checkout button */}
             <Link
-              href="/Checkout"
+              href="/checkout"
               onClick={onClose}
               className="flex items-center justify-center gap-2 w-full bg-[#C9A96E] hover:bg-[#E2C68A] text-[#0a0a0a] font-semibold py-3.5 text-sm tracking-wider uppercase transition-all hover:shadow-lg hover:shadow-[#C9A96E]/20"
             >

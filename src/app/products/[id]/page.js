@@ -31,7 +31,7 @@ export default function ProductPage({ params }) {
       <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-semibold text-gray-300 mb-4">Product not found</h2>
-          <Link href="/ProductList" className="text-[#E5A95E] hover:underline">← Back to Shop</Link>
+          <Link href="/products" className="text-[#E5A95E] hover:underline">← Back to Shop</Link>
         </div>
       </div>
     )
@@ -73,7 +73,7 @@ export default function ProductPage({ params }) {
 
   const handleBuyNow = () => {
     for (let i = 0; i < quantity; i++) addToCart(cartItem, { silent: true })
-    router.push('/Checkout')
+    router.push('/checkout')
   }
 
   const inStock = product.stock === undefined || product.stock > 0
@@ -85,7 +85,7 @@ export default function ProductPage({ params }) {
         <nav className="flex items-center gap-2 text-sm text-gray-500">
           <Link href="/" className="hover:text-[#E5A95E]">Home</Link>
           <span>/</span>
-          <Link href="/ProductList" className="hover:text-[#E5A95E]">Shop</Link>
+          <Link href="/products" className="hover:text-[#E5A95E]">Shop</Link>
           <span>/</span>
           <span className="text-gray-300 truncate max-w-[200px]">{product.name}</span>
         </nav>
