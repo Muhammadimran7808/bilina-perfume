@@ -5,6 +5,7 @@ import Footer from './components/Footer'
 import { AppProvider } from "@/context/Appcontext";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import WhatsAppButton from "./components/WhatsAppButton";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -33,6 +34,7 @@ export default function RootLayout({ children }) {
             {children}
           </main>
           <Footer />
+        <WhatsAppButton />
           <ToastContainer
             position="top-right"
             autoClose={2500}

@@ -68,3 +68,11 @@ export const PRODUCT_VOLUMES = ['30ml', '50ml', '75ml', '100ml', '200ml'];
 
 // Below this, the admin product list flags a product as running low.
 export const LOW_STOCK_THRESHOLD = 5;
+
+/**
+ * WhatsApp.
+ *
+ * International format without the + or any spaces, e.g. 923001234567 for
+ * Pakistan. wa.me rejects anything else.
+ */
+export const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '';

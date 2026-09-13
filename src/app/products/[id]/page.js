@@ -1,12 +1,15 @@
 'use client'
 
 import Image from "next/image"
-import { Star, Heart, ShoppingCart, ChevronLeft, ChevronRight, CheckCircle, Package, Zap } from "lucide-react"
+import { Star, Heart, ShoppingCart, ChevronLeft, ChevronRight, CheckCircle, Package, Zap, Facebook, Link as LinkIcon, Check } from "lucide-react"
 import { use, useContext, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { AppContext } from "@/context/Appcontext"
 import Card from "@/app/components/ProductCard"
 import Link from "next/link"
+import { toast } from "react-toastify"
+import { productEnquiryLink, shareToWhatsApp, shareToFacebook } from "@/lib/whatsapp"
+import { WhatsAppIcon } from "@/app/components/WhatsAppButton"
 
 export default function ProductPage({ params }) {
   const resolvedParams = use(params)
@@ -17,6 +20,7 @@ export default function ProductPage({ params }) {
 
   const [selectedImage, setSelectedImage] = useState(0)
   const [quantity, setQuantity] = useState(1)
+  const [copied, setCopied] = useState(false)
 
   // Find product by id
   const product = visibleProducts.find((p) => p.id === productId)
@@ -77,6 +81,23 @@ export default function ProductPage({ params }) {
   }
 
   const inStock = product.stock === undefined || product.stock > 0
+
+  // window is unavailable during the server render, so the share URL is built
+  // on the client only.
+  const pageUrl = typeof window !== 'undefined' ? window.location.href : ''
+  const whatsappHref = productEnquiryLink(product, pageUrl)
+  const shareWhatsApp = shareToWhatsApp(product, pageUrl)
+  const shareFacebook = shareToFacebook(pageUrl)
+
+  const copyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(pageUrl)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      toast.error('Could not copy the link')
+    }
+  }
 
   return (
     <div className="bg-[#0a0a0a] text-white min-h-screen">
@@ -260,6 +281,40 @@ export default function ProductPage({ params }) {
                 aria-label="Toggle wishlist"
               >
                 <Heart className={`w-5 h-5 ${inWishlist ? 'fill-current' : ''}`} />
+              </button>
+            </div>
+
+            {/* Order via WhatsApp. Many customers here already buy this way, so
+                it sits alongside checkout rather than below it. */}
+            {whatsappHref && (
+              <a
+                href={whatsappHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 w-full font-semibold py-3.5 mb-6 border border-[#25D366]/40 text-[#25D366] hover:bg-[#25D366]/10 hover:border-[#25D366] transition-all"
+              >
+                <WhatsAppIcon className="w-4 h-4" /> Order on WhatsApp
+              </a>
+            )}
+
+            {/* Share */}
+            <div className="flex items-center gap-3 mb-6">
+              <span className="text-[11px] text-[#666] tracking-[0.12em] uppercase">Share</span>
+              {shareWhatsApp && (
+                <a href={shareWhatsApp} target="_blank" rel="noopener noreferrer"
+                  aria-label="Share on WhatsApp"
+                  className="w-8 h-8 flex items-center justify-center border border-[#232323] text-[#888] hover:text-[#25D366] hover:border-[#25D366]/40 transition-colors">
+                  <WhatsAppIcon className="w-3.5 h-3.5" />
+                </a>
+              )}
+              <a href={shareFacebook} target="_blank" rel="noopener noreferrer"
+                aria-label="Share on Facebook"
+                className="w-8 h-8 flex items-center justify-center border border-[#232323] text-[#888] hover:text-[#1877F2] hover:border-[#1877F2]/40 transition-colors">
+                <Facebook className="w-3.5 h-3.5" />
+              </a>
+              <button onClick={copyLink} aria-label="Copy link"
+                className="w-8 h-8 flex items-center justify-center border border-[#232323] text-[#888] hover:text-[#C9A96E] hover:border-[#C9A96E]/40 transition-colors">
+                {copied ? <Check className="w-3.5 h-3.5 text-[#C9A96E]" /> : <LinkIcon className="w-3.5 h-3.5" />}
               </button>
             </div>
 

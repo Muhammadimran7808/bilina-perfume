@@ -3,6 +3,8 @@ import { Minus, Plus, Trash2, ShoppingBag, ArrowLeft, Banknote } from "lucide-re
 import Image from "next/image";
 import Link from "next/link";
 import { SHIPPING_THRESHOLD, SHIPPING_FEE } from "@/lib/constants";
+import { cartEnquiryLink } from "@/lib/whatsapp";
+import { WhatsAppIcon } from "@/app/components/WhatsAppButton";
 import { useContext, useState } from "react";
 import { AppContext } from "@/context/Appcontext";
 
@@ -14,6 +16,7 @@ export default function Cart() {
   const subtotal = cart.reduce((sum, item) => sum + Number(item.price) * item.quantity, 0);
   const shipping = subtotal >= SHIPPING_THRESHOLD ? 0 : SHIPPING_FEE;
   const total = subtotal + shipping;
+  const whatsappHref = cartEnquiryLink(cart, total);
 
   if (cart.length === 0) {
     return (
@@ -139,6 +142,17 @@ export default function Cart() {
             >
               Proceed to checkout
             </Link>
+
+            {whatsappHref && (
+              <a
+                href={whatsappHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 w-full border border-[#25D366]/40 text-[#25D366] hover:bg-[#25D366]/10 hover:border-[#25D366] text-sm font-semibold tracking-wider uppercase py-3 transition-all"
+              >
+                <WhatsAppIcon className="w-4 h-4" /> Order on WhatsApp
+              </a>
+            )}
 
             <div className="flex items-center gap-2 text-xs text-[#666] justify-center">
               <Banknote className="w-3.5 h-3.5" />
