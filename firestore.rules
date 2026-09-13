@@ -1,0 +1,60 @@
+rules_version = '2';
+
+// Paste this into: Firebase Console > Firestore Database > Rules > Publish.
+// This file is the source of truth — edit it here, then copy it across.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Roles are read from the caller's own profile document. A user can never
+    // write their own role (see the /users rules), so this cannot be forged.
+    function isAdmin() {
+      return isSignedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // --- User profiles -------------------------------------------------------
+    match /users/{userId} {
+      allow read: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+
+      // First sign-in creates the profile, always at the lowest privilege.
+      allow create: if isSignedIn()
+                    && request.auth.uid == userId
+                    && request.resource.data.role == 'user';
+
+      // Profile edits must leave `role` untouched; promotion to admin happens
+      // out of band in the Firebase console.
+      allow update: if isSignedIn()
+                    && request.auth.uid == userId
+                    && request.resource.data.role == resource.data.role;
+
+      allow delete: if false;
+    }
+
+    // --- Product catalogue ---------------------------------------------------
+    // Public storefront reads; only admins may add, edit or remove products.
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // --- Orders --------------------------------------------------------------
+    // Guest checkout is supported, so an order may be created with userId null;
+    // a signed-in order must carry the caller's own uid, never someone else's.
+    match /orders/{orderId} {
+      allow create: if request.resource.data.userId == null
+                    || (isSignedIn() && request.resource.data.userId == request.auth.uid);
+
+      allow read: if isAdmin()
+                  || (isSignedIn() && resource.data.userId == request.auth.uid);
+
+      allow update, delete: if isAdmin();
+    }
+
+    // Anything not matched above is denied by default.
+  }
+}
