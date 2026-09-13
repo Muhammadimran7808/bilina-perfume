@@ -8,7 +8,7 @@ import { AppContext } from "@/context/Appcontext";
 import Card from "@/app/components/ProductCard";
 
 function SearchResults() {
-  const { perfumesData } = useContext(AppContext);
+  const { visibleProducts } = useContext(AppContext);
   const searchParams = useSearchParams();
   const router = useRouter();
   const initialQuery = searchParams.get("q") || "";
@@ -19,14 +19,14 @@ function SearchResults() {
   useEffect(() => {
     const q = searchQuery.trim().toLowerCase();
     if (q.length < 1) { setResults([]); return; }
-    const filtered = perfumesData.filter(
+    const filtered = visibleProducts.filter(
       (p) =>
         p.name?.toLowerCase().includes(q) ||
         p.description?.toLowerCase().includes(q) ||
         p.brand?.toLowerCase().includes(q)
     );
     setResults(filtered);
-  }, [searchQuery, perfumesData]);
+  }, [searchQuery, visibleProducts]);
 
   const handleSubmit = (e) => {
     e.preventDefault();

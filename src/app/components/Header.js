@@ -1,7 +1,7 @@
 'use client'
 import Link from 'next/link';
 import { useEffect, useState, useContext, useRef } from 'react';
-import { Menu, X, Search, User, ShoppingCart, Heart, LogOut, ChevronDown } from 'lucide-react';
+import { Menu, X, Search, User, ShoppingCart, Heart, LogOut, ChevronDown, LayoutDashboard } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
 import { AppContext } from '@/context/Appcontext';
 import CartSidebar from './CartSidebar';
@@ -23,7 +23,7 @@ const ANNOUNCEMENTS = [
 ];
 
 export default function Header() {
-  const { cartCount, wishlistCount, user, handleLogout, perfumesData } = useContext(AppContext);
+  const { cartCount, wishlistCount, user, isAdmin, handleLogout, visibleProducts } = useContext(AppContext);
   const [scrolled, setScrolled]     = useState(false);
   const [menuOpen, setMenuOpen]     = useState(false);
   const [cartOpen, setCartOpen]     = useState(false);
@@ -59,8 +59,8 @@ export default function Header() {
   useEffect(() => {
     if (query.trim().length < 2) { setSuggestions([]); return; }
     const q = query.toLowerCase();
-    setSuggestions(perfumesData.filter(p => p.name?.toLowerCase().includes(q)).slice(0, 5));
-  }, [query, perfumesData]);
+    setSuggestions(visibleProducts.filter(p => p.name?.toLowerCase().includes(q)).slice(0, 5));
+  }, [query, visibleProducts]);
 
   const goSearch = (e) => {
     e.preventDefault();
@@ -219,6 +219,11 @@ export default function Header() {
                       </div>
                       <Link href="/account" onClick={() => setUserOpen(false)} className="block px-4 py-2.5 text-[13px] text-[#aaa] hover:bg-[#1a1a1a] hover:text-[#C9A96E]">My Profile</Link>
                       <Link href="/account"  onClick={() => setUserOpen(false)} className="block px-4 py-2.5 text-[13px] text-[#aaa] hover:bg-[#1a1a1a] hover:text-[#C9A96E]">Order History</Link>
+                      {isAdmin && (
+                        <Link href="/admin" onClick={() => setUserOpen(false)} className="block px-4 py-2.5 text-[13px] text-[#C9A96E] hover:bg-[#1a1a1a] border-t border-[#232323] flex items-center gap-2">
+                          <LayoutDashboard className="w-3.5 h-3.5" /> Dashboard
+                        </Link>
+                      )}
                       <button onClick={() => { handleLogout(); setUserOpen(false); }} className="w-full text-left px-4 py-2.5 text-[13px] text-red-400 hover:bg-[#1a1a1a] flex items-center gap-2">
                         <LogOut className="w-3.5 h-3.5" /> Sign Out
                       </button>

@@ -12,6 +12,7 @@ export const AppContext = createContext({
   authError: null,
   loading: true,
   perfumesData: [],
+  visibleProducts: [],
   cart: [],
   wishlist: [],
   recentlyViewed: [],
@@ -139,12 +140,68 @@ export const AppProvider = ({ children }) => {
     }
   };
 
+  /**
+   * Coerce an admin-entered product into the shape the storefront expects.
+   *
+   * The admin form is free text, so price/stock/rating must not reach Firestore
+   * as strings — Number("abc") becomes NaN in every cart total downstream.
+   */
+  const normaliseProduct = (data) => ({
+    name: (data.name || '').trim(),
+    description: (data.description || '').trim(),
+    brand: (data.brand || '').trim(),
+    category: (data.category || '').trim(),
+    gender: (data.gender || '').trim(),
+    volume: (data.volume || '').trim(),
+    sku: (data.sku || '').trim(),
+    topNotes: (data.topNotes || '').trim(),
+    middleNotes: (data.middleNotes || '').trim(),
+    baseNotes: (data.baseNotes || '').trim(),
+    imageUrl: (data.imageUrl || '').trim(),
+    price: Number(data.price) || 0,
+    stock: Number(data.stock) || 0,
+    rating: Number(data.rating) || 0,
+    reviews: Number(data.reviews) || 0,
+    isActive: data.isActive !== false,
+  });
+
   const SaveProduct = async (data) => {
     try {
-      const docRef = collection(db, 'products');
-      await addDoc(docRef, { ...data, timestamp: new Date() });
+      const docRef = await addDoc(collection(db, 'products'), {
+        ...normaliseProduct(data),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+      await fetchPerfumes();
+      return { success: true, id: docRef.id };
     } catch (error) {
       console.error('Error saving product:', error);
+      return { success: false, error: error.message };
+    }
+  };
+
+  const updateProduct = async (id, data) => {
+    try {
+      await updateDoc(doc(db, 'products', id), {
+        ...normaliseProduct(data),
+        updatedAt: new Date(),
+      });
+      await fetchPerfumes();
+      return { success: true };
+    } catch (error) {
+      console.error('Error updating product:', error);
+      return { success: false, error: error.message };
+    }
+  };
+
+  const deleteProduct = async (id) => {
+    try {
+      await deleteDoc(doc(db, 'products', id));
+      await fetchPerfumes();
+      return { success: true };
+    } catch (error) {
+      console.error('Error deleting product:', error);
+      return { success: false, error: error.message };
     }
   };
 
@@ -259,6 +316,10 @@ export const AppProvider = ({ children }) => {
     });
   }, []);
 
+  // Everything the shop, search and homepage should show. The admin keeps
+  // reading perfumesData so it can still see hidden products.
+  const visibleProducts = perfumesData.filter((p) => p.isActive !== false);
+
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
   const wishlistCount = wishlist.length;
 
@@ -271,6 +332,7 @@ export const AppProvider = ({ children }) => {
         authError,
         loading,
         perfumesData,
+        visibleProducts,
         cart,
         wishlist,
         recentlyViewed,
@@ -278,6 +340,8 @@ export const AppProvider = ({ children }) => {
         wishlistCount,
         fetchPerfumes,
         SaveProduct,
+        updateProduct,
+        deleteProduct,
         handleLogin,
         handleSignUp,
         handleLogout,

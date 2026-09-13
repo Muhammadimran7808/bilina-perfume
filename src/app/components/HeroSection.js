@@ -40,7 +40,7 @@ const CATEGORIES = [
 ]
 
 export default function HeroSection() {
-  const { perfumesData } = useContext(AppContext)
+  const { visibleProducts } = useContext(AppContext)
   const router = useRouter()
 
   return (
@@ -141,11 +141,11 @@ export default function HeroSection() {
       {/* ════════════════════════════════════════
           BEST SELLERS
       ════════════════════════════════════════ */}
-      {perfumesData.length > 0 && (
+      {visibleProducts.length > 0 && (
         <section className="py-24 px-6 md:px-8 max-w-7xl mx-auto">
           <SectionHeader eyebrow="Most Loved" title="Best Sellers" />
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {perfumesData.slice(0, 4).map((p, i) => (
+            {visibleProducts.slice(0, 4).map((p, i) => (
               <Card products={p} key={p.id || i} index={i} />
             ))}
           </div>
@@ -269,11 +269,11 @@ export default function HeroSection() {
       {/* ════════════════════════════════════════
           NEW ARRIVALS (when enough products)
       ════════════════════════════════════════ */}
-      {perfumesData.length > 4 && (
+      {visibleProducts.length > 4 && (
         <section className="py-24 px-6 md:px-8 max-w-7xl mx-auto">
           <SectionHeader eyebrow="Just Arrived" title="New Additions" />
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {[...perfumesData].reverse().slice(0, 4).map((p, i) => (
+            {[...visibleProducts].reverse().slice(0, 4).map((p, i) => (
               <Card products={p} key={`new-${p.id || i}`} index={i} />
             ))}
           </div>

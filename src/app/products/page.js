@@ -4,6 +4,7 @@ import { useState, useContext, useMemo } from "react"
 import { SlidersHorizontal, X, ChevronDown, ChevronUp, Search } from "lucide-react"
 import Card from "../components/ProductCard"
 import { AppContext } from "@/context/Appcontext"
+import { FRAGRANCE_NOTES, PRODUCT_CATEGORIES, PRODUCT_GENDERS } from "@/lib/constants"
 
 const SORT_OPTIONS = [
   { value: "default", label: "Featured" },
@@ -13,10 +14,11 @@ const SORT_OPTIONS = [
   { value: "name-asc", label: "Name: A–Z" },
 ]
 
-const FRAGRANCE_NOTES = ["Oud", "Rose", "Musk", "Amber", "Vanilla", "Sandalwood", "Citrus", "Jasmine", "Cedar", "Bergamot"]
-const BRANDS = ["A.S Fragrance", "Classic", "Modern", "Vintage", "Luxury"]
-const CATEGORIES = ["Men", "Women", "Unisex", "Oud", "Floral", "Fresh", "Woody", "Oriental"]
 const PAGE_SIZE = 12
+
+// Categories combine the fragrance families with the gender split, because the
+// filter below matches a product on either field.
+const CATEGORIES = [...PRODUCT_GENDERS, ...PRODUCT_CATEGORIES]
 
 function FilterSection({ title, children, defaultOpen = false }) {
   const [open, setOpen] = useState(defaultOpen)
@@ -35,7 +37,17 @@ function FilterSection({ title, children, defaultOpen = false }) {
 }
 
 export default function ProductsPage() {
-  const { perfumesData } = useContext(AppContext)
+  const { visibleProducts } = useContext(AppContext)
+
+  // Brand is free text in the admin form, so the filter list comes from the
+  // catalogue itself rather than a hardcoded vocabulary that would go stale.
+  const BRANDS = useMemo(
+    () =>
+      [...new Set(visibleProducts.map((p) => p.brand).filter(Boolean))].sort((a, b) =>
+        a.localeCompare(b)
+      ),
+    [visibleProducts]
+  )
 
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sort, setSort] = useState("default")
@@ -50,7 +62,7 @@ export default function ProductsPage() {
   const [inStockOnly, setInStockOnly] = useState(false)
 
   // Compute min/max price from data
-  const prices = perfumesData.map((p) => Number(p.price) || 0)
+  const prices = visibleProducts.map((p) => Number(p.price) || 0)
   const minPrice = prices.length ? Math.min(...prices) : 0
   const maxPrice = prices.length ? Math.max(...prices) : 10000
 
@@ -80,7 +92,7 @@ export default function ProductsPage() {
     (priceRange[0] > minPrice || priceRange[1] < maxPrice ? 1 : 0)
 
   const filtered = useMemo(() => {
-    let result = [...perfumesData]
+    let result = [...visibleProducts]
 
     if (search.trim()) {
       const q = search.toLowerCase()
@@ -145,7 +157,7 @@ export default function ProductsPage() {
     }
 
     return result
-  }, [perfumesData, search, priceRange, selectedCategories, selectedNotes, selectedBrands, inStockOnly, sort])
+  }, [visibleProducts, search, priceRange, selectedCategories, selectedNotes, selectedBrands, inStockOnly, sort])
 
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE)
   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)

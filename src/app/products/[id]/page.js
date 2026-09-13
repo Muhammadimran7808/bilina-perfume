@@ -12,21 +12,21 @@ export default function ProductPage({ params }) {
   const resolvedParams = use(params)
   const productId = resolvedParams.id
 
-  const { perfumesData, addToCart, toggleWishlist, isInWishlist, addToRecentlyViewed } = useContext(AppContext)
+  const { visibleProducts, addToCart, toggleWishlist, isInWishlist, addToRecentlyViewed } = useContext(AppContext)
   const router = useRouter()
 
   const [selectedImage, setSelectedImage] = useState(0)
   const [quantity, setQuantity] = useState(1)
 
   // Find product by id
-  const product = perfumesData.find((p) => p.id === productId)
+  const product = visibleProducts.find((p) => p.id === productId)
 
   // Add to recently viewed when product loads
   useEffect(() => {
     if (product) addToRecentlyViewed(product)
   }, [product])
 
-  if (!product && perfumesData.length > 0) {
+  if (!product && visibleProducts.length > 0) {
     return (
       <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
         <div className="text-center">
@@ -51,7 +51,7 @@ export default function ProductPage({ params }) {
     : [product.imageUrl || product.image || '/placeholder.svg']
 
   const inWishlist = isInWishlist(product.id)
-  const relatedProducts = perfumesData.filter((p) => p.id !== product.id).slice(0, 4)
+  const relatedProducts = visibleProducts.filter((p) => p.id !== product.id).slice(0, 4)
 
   const fragranceNotes = [
     { label: 'Top Notes', value: product.topNotes || product.fragranceNotes?.top },
