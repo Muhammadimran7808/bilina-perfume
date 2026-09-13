@@ -51,12 +51,9 @@ const item2 = { id: 'p2', name: 'Oud Classic',   price: 1500, quantity: 2, image
 const loggedInUser = { uid: 'u1', email: 'buyer@test.com' }
 
 const baseCtx = {
-  user: loggedInUser,
-  loading: false,
   cart: [item1],
   removeFromCart: jest.fn(),
   updateCartQuantity: jest.fn(),
-  clearCart: jest.fn(),
 }
 
 const renderCart = (ctxOverrides = {}) =>
@@ -145,77 +142,6 @@ describe('Cart – item list', () => {
   })
 })
 
-// ── Coupon codes ──────────────────────────────────────────────
-
-describe('Cart – coupon codes', () => {
-  test('renders coupon input and Apply button', () => {
-    renderCart()
-    expect(screen.getByPlaceholderText('Enter coupon code')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Apply' })).toBeInTheDocument()
-  })
-
-  test('shows hint text listing available coupons', () => {
-    renderCart()
-    expect(screen.getByText(/WELCOME20, SAVE10, ASFF15/)).toBeInTheDocument()
-  })
-
-  test('applies WELCOME20 coupon (20% off)', async () => {
-    const user = userEvent.setup()
-    renderCart()
-    await user.type(screen.getByPlaceholderText('Enter coupon code'), 'WELCOME20')
-    await user.click(screen.getByRole('button', { name: 'Apply' }))
-    expect(screen.getByText(/WELCOME20 — 20% off/)).toBeInTheDocument()
-  })
-
-  test('applies SAVE10 coupon (10% off)', async () => {
-    const user = userEvent.setup()
-    renderCart()
-    await user.type(screen.getByPlaceholderText('Enter coupon code'), 'SAVE10')
-    await user.click(screen.getByRole('button', { name: 'Apply' }))
-    expect(screen.getByText(/SAVE10 — 10% off/)).toBeInTheDocument()
-  })
-
-  test('applies ASFF15 coupon (15% off)', async () => {
-    const user = userEvent.setup()
-    renderCart()
-    await user.type(screen.getByPlaceholderText('Enter coupon code'), 'ASFF15')
-    await user.click(screen.getByRole('button', { name: 'Apply' }))
-    expect(screen.getByText(/ASFF15 — 15% off/)).toBeInTheDocument()
-  })
-
-  test('shows error for invalid coupon code', async () => {
-    const user = userEvent.setup()
-    renderCart()
-    await user.type(screen.getByPlaceholderText('Enter coupon code'), 'BADCODE')
-    await user.click(screen.getByRole('button', { name: 'Apply' }))
-    expect(screen.getByText('Invalid coupon code.')).toBeInTheDocument()
-  })
-
-  test('removes applied coupon when Remove is clicked', async () => {
-    const user = userEvent.setup()
-    renderCart()
-    await user.type(screen.getByPlaceholderText('Enter coupon code'), 'SAVE10')
-    await user.click(screen.getByRole('button', { name: 'Apply' }))
-    await user.click(screen.getByRole('button', { name: 'Remove' }))
-    expect(screen.queryByText(/SAVE10 — 10% off/)).not.toBeInTheDocument()
-    expect(screen.getByPlaceholderText('Enter coupon code')).toBeInTheDocument()
-  })
-
-  test('applies coupon when Enter key is pressed in input', async () => {
-    const user = userEvent.setup()
-    renderCart()
-    await user.type(screen.getByPlaceholderText('Enter coupon code'), 'WELCOME20{Enter}')
-    expect(screen.getByText(/WELCOME20 — 20% off/)).toBeInTheDocument()
-  })
-
-  test('coupon input is case-insensitive', async () => {
-    const user = userEvent.setup()
-    renderCart()
-    await user.type(screen.getByPlaceholderText('Enter coupon code'), 'welcome20')
-    await user.click(screen.getByRole('button', { name: 'Apply' }))
-    expect(screen.getByText(/WELCOME20 — 20% off/)).toBeInTheDocument()
-  })
-})
 
 // ── Order summary ─────────────────────────────────────────────
 
@@ -235,71 +161,40 @@ describe('Cart – order summary', () => {
     expect(screen.getByText('Shipping')).toBeInTheDocument()
   })
 
-  test('shows discount row after valid coupon applied', async () => {
-    const user = userEvent.setup()
-    renderCart()
-    await user.type(screen.getByPlaceholderText('Enter coupon code'), 'WELCOME20')
-    await user.click(screen.getByRole('button', { name: 'Apply' }))
-    expect(screen.getByText(/Discount/)).toBeInTheDocument()
-    expect(screen.getByText(/−Rs/)).toBeInTheDocument()
-  })
-
-  test('hides discount row when no coupon applied', () => {
-    renderCart()
-    expect(screen.queryByText(/Discount/)).not.toBeInTheDocument()
-  })
 })
 
-// ── Auth state on Place Order ─────────────────────────────────
 
-describe('Cart – Place Order button', () => {
-  test('shows "Sign In to Place Order" when user not logged in', () => {
-    renderCart({ user: null })
-    expect(screen.getByText(/Sign In to Place Order/)).toBeInTheDocument()
+
+// ── Checkout handoff ──────────────────────────────────────────
+// The cart reviews the basket and hands off. Delivery details and order
+// placement belong to /checkout, which used to be a near-duplicate of this
+// page that had drifted apart from it.
+
+describe('Cart – checkout handoff', () => {
+  test('links to the checkout page', () => {
+    renderCart()
+    const link = screen.getByRole('link', { name: /proceed to checkout/i })
+    expect(link).toHaveAttribute('href', '/checkout')
   })
 
-  test('shows "Place Order · Rs" with total when logged in', () => {
+  test('states that payment is cash on delivery', () => {
     renderCart()
-    expect(screen.getByText(/Place Order · Rs/)).toBeInTheDocument()
-  })
-})
-
-// ── Checkout form validation ──────────────────────────────────
-
-describe('Cart – checkout form validation', () => {
-  test('shows "Full name is required" when name is empty', async () => {
-    const user = userEvent.setup()
-    renderCart()
-    await user.click(screen.getByText(/Place Order · Rs/))
-    expect(await screen.findByText('Full name is required')).toBeInTheDocument()
+    expect(screen.getByText(/cash on delivery/i)).toBeInTheDocument()
   })
 
-  test('shows "Phone number is required" when phone is empty', async () => {
-    const user = userEvent.setup()
+  test('does not collect delivery details', () => {
     renderCart()
-    await user.click(screen.getByText(/Place Order · Rs/))
-    expect(await screen.findByText('Phone number is required')).toBeInTheDocument()
+    expect(screen.queryByPlaceholderText(/street address/i)).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /place order/i })).not.toBeInTheDocument()
   })
 
-  test('shows "Address is required" when address is empty', async () => {
-    const user = userEvent.setup()
+  test('does not offer a coupon box', () => {
     renderCart()
-    await user.click(screen.getByText(/Place Order · Rs/))
-    expect(await screen.findByText('Address is required')).toBeInTheDocument()
+    expect(screen.queryByPlaceholderText(/coupon/i)).not.toBeInTheDocument()
   })
 
-  test('shows "City is required" when city is empty', async () => {
-    const user = userEvent.setup()
-    renderCart()
-    await user.click(screen.getByText(/Place Order · Rs/))
-    expect(await screen.findByText('City is required')).toBeInTheDocument()
-  })
-
-  test('does NOT call addDoc when form is invalid', async () => {
-    const { addDoc } = require('firebase/firestore')
-    const user = userEvent.setup()
-    renderCart()
-    await user.click(screen.getByText(/Place Order · Rs/))
-    expect(addDoc).not.toHaveBeenCalled()
+  test('hides the checkout link when the cart is empty', () => {
+    renderCart({ cart: [] })
+    expect(screen.queryByRole('link', { name: /proceed to checkout/i })).not.toBeInTheDocument()
   })
 })

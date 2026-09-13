@@ -43,16 +43,26 @@ service cloud.firestore {
     }
 
     // --- Orders --------------------------------------------------------------
-    // Guest checkout is supported, so an order may be created with userId null;
-    // a signed-in order must carry the caller's own uid, never someone else's.
+    // Orders are written only by POST /api/orders, which uses the Admin SDK and
+    // bypasses these rules. Clients may never create one: the browser cannot be
+    // trusted with prices, and the previous rule allowed a guest order with
+    // userId null, which let anyone on the internet write arbitrary documents
+    // into this collection.
     match /orders/{orderId} {
-      allow create: if request.resource.data.userId == null
-                    || (isSignedIn() && request.resource.data.userId == request.auth.uid);
+      allow create: if false;
 
       allow read: if isAdmin()
                   || (isSignedIn() && resource.data.userId == request.auth.uid);
 
-      allow update, delete: if isAdmin();
+      allow update: if isAdmin();
+      allow delete: if false;
+    }
+
+    // --- Coupons -------------------------------------------------------------
+    // Read and applied server-side only, so codes are not enumerable from the
+    // browser. They used to be a hardcoded map printed on the checkout page.
+    match /coupons/{code} {
+      allow read, write: if isAdmin();
     }
 
     // Anything not matched above is denied by default.

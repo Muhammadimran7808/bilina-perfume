@@ -1,125 +1,19 @@
 'use client'
-import { Minus, Plus, Trash2, ShoppingBag, ArrowLeft, Tag, Lock } from "lucide-react";
+import { Minus, Plus, Trash2, ShoppingBag, ArrowLeft, Banknote } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { SHIPPING_THRESHOLD, SHIPPING_FEE } from "@/lib/constants";
 import { useContext, useState } from "react";
-import Swal from 'sweetalert2';
 import { AppContext } from "@/context/Appcontext";
-import { db } from "@/firebaseConfig";
-import { collection, addDoc } from "firebase/firestore";
 
-const COUPONS = {
-  WELCOME20: 20,
-  SAVE10: 10,
-  ASFF15: 15,
-}
-
-const SHIPPING_THRESHOLD = 2000
-const SHIPPING_FEE = 200
 
 export default function Cart() {
-  const { user, loading, cart, removeFromCart, updateCartQuantity, clearCart } = useContext(AppContext);
-  const isLoggedIn = !loading && !!user;
+  const { cart, removeFromCart, updateCartQuantity } = useContext(AppContext);
 
-  const [couponInput, setCouponInput] = useState('');
-  const [appliedCoupon, setAppliedCoupon] = useState(null);
-  const [couponError, setCouponError] = useState('');
-  const [checkoutForm, setCheckoutForm] = useState({ name: '', email: '', phone: '', address: '', city: '', notes: '' });
-  const [formErrors, setFormErrors] = useState({});
-  const [placing, setPlacing] = useState(false);
 
   const subtotal = cart.reduce((sum, item) => sum + Number(item.price) * item.quantity, 0);
   const shipping = subtotal >= SHIPPING_THRESHOLD ? 0 : SHIPPING_FEE;
-  const discount = appliedCoupon ? Math.round((subtotal * COUPONS[appliedCoupon]) / 100) : 0;
-  const total = subtotal + shipping - discount;
-
-  const applyCoupon = () => {
-    const code = couponInput.trim().toUpperCase();
-    if (COUPONS[code]) {
-      setAppliedCoupon(code);
-      setCouponError('');
-      setCouponInput('');
-    } else {
-      setCouponError('Invalid coupon code.');
-      setAppliedCoupon(null);
-    }
-  };
-
-  const removeCoupon = () => {
-    setAppliedCoupon(null);
-    setCouponError('');
-  };
-
-  const validateForm = () => {
-    const errors = {};
-    if (!checkoutForm.name.trim()) errors.name = 'Full name is required';
-    if (!checkoutForm.phone.trim()) errors.phone = 'Phone number is required';
-    if (!checkoutForm.address.trim()) errors.address = 'Address is required';
-    if (!checkoutForm.city.trim()) errors.city = 'City is required';
-    if (checkoutForm.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(checkoutForm.email)) {
-      errors.email = 'Enter a valid email';
-    }
-    setFormErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
-
-  const handleCheckout = async () => {
-    if (cart.length === 0) return;
-    if (!isLoggedIn) {
-      Swal.fire({
-        title: 'Sign In Required',
-        html: 'Please <a href="/login" style="color:#C9A96E;text-decoration:underline;font-weight:600">sign in</a> to place your order.',
-        icon: 'warning',
-        background: '#111',
-        color: '#fff',
-        confirmButtonColor: '#C9A96E',
-        confirmButtonText: 'Go to Sign In',
-      }).then((result) => {
-        if (result.isConfirmed) window.location.href = '/login';
-      });
-      return;
-    }
-    if (!validateForm()) return;
-
-    setPlacing(true);
-    try {
-      const orderData = {
-        items: cart,
-        customer: checkoutForm,
-        userId: user?.uid || null,
-        userEmail: user?.email || checkoutForm.email || null,
-        subtotal,
-        shipping,
-        discount,
-        total,
-        coupon: appliedCoupon || null,
-        paymentMethod: 'COD',
-        status: 'Pending',
-        createdAt: new Date(),
-      };
-
-      // Save to Firestore
-      await addDoc(collection(db, 'orders'), orderData);
-      clearCart();
-
-      Swal.fire({
-        title: 'Order Placed!',
-        html: `<p>Thank you, <strong>${checkoutForm.name}</strong>!</p><p>Your order has been received and will be delivered soon.</p>`,
-        icon: 'success',
-        background: '#111',
-        color: '#fff',
-        confirmButtonColor: '#C9A96E',
-        confirmButtonText: 'Continue Shopping',
-      }).then(() => {
-        window.location.href = '/products';
-      });
-    } catch (err) {
-      console.error('Order error:', err);
-      Swal.fire({ title: 'Error', text: 'Failed to place order. Please try again.', icon: 'error', background: '#111', color: '#fff', confirmButtonColor: '#C9A96E' });
-    } finally {
-      setPlacing(false);
-    }
-  };
+  const total = subtotal + shipping;
 
   if (cart.length === 0) {
     return (
@@ -202,39 +96,8 @@ export default function Cart() {
                 </div>
               </div>
             ))}
-
-            {/* Coupon */}
-            <div className="bg-[#0f0f0f] border border-[#1e1e1e] p-4">
-              <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
-                <Tag className="w-4 h-4 text-[#C9A96E]" /> Coupon Code
-              </h3>
-              {appliedCoupon ? (
-                <div className="flex items-center justify-between bg-[#C9A96E]/10 border border-[#C9A96E]/30 px-4 py-2.5">
-                  <span className="text-sm text-[#C9A96E] font-mono font-semibold">{appliedCoupon} — {COUPONS[appliedCoupon]}% off</span>
-                  <button onClick={removeCoupon} className="text-[#666] hover:text-white text-xs">Remove</button>
-                </div>
-              ) : (
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    placeholder="Enter coupon code"
-                    value={couponInput}
-                    onChange={(e) => { setCouponInput(e.target.value); setCouponError('') }}
-                    onKeyDown={(e) => e.key === 'Enter' && applyCoupon()}
-                    className="flex-1 bg-[#111] border border-[#232323] focus:border-[#C9A96E]/50 px-3 py-2 text-sm text-white placeholder-[#444] outline-none"
-                  />
-                  <button
-                    onClick={applyCoupon}
-                    className="bg-[#C9A96E] hover:bg-[#E2C68A] text-black font-semibold px-4 py-2 text-sm transition-colors"
-                  >
-                    Apply
-                  </button>
-                </div>
-              )}
-              {couponError && <p className="text-red-400 text-xs mt-2">{couponError}</p>}
-              <p className="text-xs text-[#555] mt-2">Try: WELCOME20, SAVE10, ASFF15</p>
-            </div>
           </div>
+
 
           {/* ── Order summary + checkout ── */}
           <div className="space-y-4">
@@ -252,12 +115,6 @@ export default function Cart() {
                     {shipping === 0 ? 'Free' : `Rs ${shipping}`}
                   </span>
                 </div>
-                {discount > 0 && (
-                  <div className="flex justify-between text-green-400">
-                    <span>Discount ({appliedCoupon})</span>
-                    <span>−Rs {discount.toLocaleString()}</span>
-                  </div>
-                )}
                 <hr className="border-[#1e1e1e] my-1" />
                 <div className="flex justify-between font-bold text-base">
                   <span>Total</span>
@@ -271,58 +128,21 @@ export default function Cart() {
               )}
             </div>
 
-            {/* COD Checkout form */}
-            <div className="bg-[#0f0f0f] border border-[#1e1e1e] p-5">
-              <h3 className="text-base font-bold mb-4">Delivery Details</h3>
-              <div className="space-y-3">
-                {[
-                  { key: 'name', placeholder: 'Full Name *', type: 'text' },
-                  { key: 'phone', placeholder: 'Phone Number *', type: 'tel' },
-                  { key: 'email', placeholder: 'Email (optional)', type: 'email' },
-                  { key: 'address', placeholder: 'Street Address *', type: 'text' },
-                  { key: 'city', placeholder: 'City *', type: 'text' },
-                  { key: 'notes', placeholder: 'Order notes (optional)', type: 'text' },
-                ].map(({ key, placeholder, type }) => (
-                  <div key={key}>
-                    <input
-                      type={type}
-                      placeholder={placeholder}
-                      value={checkoutForm[key]}
-                      onChange={(e) => setCheckoutForm((f) => ({ ...f, [key]: e.target.value }))}
-                      className={`w-full bg-[#111] border  px-3 py-2.5 text-sm text-white placeholder-[#444] outline-none transition-colors ${
-                        formErrors[key] ? 'border-red-500' : 'border-[#232323] focus:border-[#C9A96E]/50'
-                      }`}
-                    />
-                    {formErrors[key] && <p className="text-red-400 text-xs mt-1">{formErrors[key]}</p>}
-                  </div>
-                ))}
-              </div>
+            {/* Cart is review-only. Delivery details and order placement live on
+                /checkout, which used to be a near-duplicate of this page that had
+                drifted: this one demanded a login and made email optional, that
+                one demanded neither and collected three more address fields, and
+                both wrote different shapes into the same orders collection. */}
+            <Link
+              href="/checkout"
+              className="block w-full text-center bg-[#C9A96E] hover:bg-[#E2C68A] text-[#0a0a0a] text-sm font-semibold tracking-wider uppercase py-3.5 transition-colors"
+            >
+              Proceed to checkout
+            </Link>
 
-              <div className="mt-4 p-3 bg-[#111] border border-[#1e1e1e] flex items-center gap-2">
-                <span className="text-lg">💵</span>
-                <div>
-                  <p className="text-sm font-medium text-white">Cash on Delivery</p>
-                  <p className="text-xs text-[#666]">Pay when you receive your order</p>
-                </div>
-              </div>
-
-              <button
-                onClick={handleCheckout}
-                disabled={placing}
-                className={`w-full mt-4 font-bold py-3.5  transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed ${
-                  isLoggedIn
-                    ? 'bg-[#C9A96E] hover:bg-[#E2C68A] text-black hover:shadow-lg hover:shadow-[#C9A96E]/20'
-                    : 'bg-[#232323] hover:bg-[#2a2a2a] text-[#f5f5f0]'
-                }`}
-              >
-                {placing ? (
-                  <><span className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" /> Placing Order…</>
-                ) : !isLoggedIn ? (
-                  <><Lock className="w-4 h-4" /> Sign In to Place Order</>
-                ) : (
-                  <>Place Order · Rs {total.toLocaleString()}</>
-                )}
-              </button>
+            <div className="flex items-center gap-2 text-xs text-[#666] justify-center">
+              <Banknote className="w-3.5 h-3.5" />
+              Cash on delivery
             </div>
 
             <Link href="/products" className="block text-center text-sm text-[#666] hover:text-[#C9A96E] transition-colors">

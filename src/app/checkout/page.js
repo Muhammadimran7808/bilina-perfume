@@ -1,21 +1,13 @@
 'use client'
-import { Minus, Plus, Trash2, ShoppingBag, ArrowLeft, Tag, CreditCard, Wallet, Banknote, Lock } from "lucide-react";
+import { Minus, Plus, Trash2, ShoppingBag, ArrowLeft, Tag, Banknote } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useContext, useState } from "react";
 import Swal from 'sweetalert2';
 import { AppContext } from "@/context/Appcontext";
-import { db } from "@/firebaseConfig";
-import { collection, addDoc } from "firebase/firestore";
-
-const COUPONS = {
-  WELCOME20: 20,
-  SAVE10: 10,
-  ASFF15: 15,
-}
-
-const SHIPPING_THRESHOLD = 2000
-const SHIPPING_FEE = 200
+import { SHIPPING_THRESHOLD, SHIPPING_FEE } from "@/lib/constants";
+import { formatPKR } from "@/lib/format";
+import { validateCustomer } from "@/lib/orders";
 
 const COUNTRIES = [
   'Pakistan', 'Afghanistan', 'Australia', 'Bahrain', 'Bangladesh', 'Canada',
@@ -37,24 +29,30 @@ export default function Checkout() {
   const [checkoutForm, setCheckoutForm] = useState({ name: '', email: '', phone: '', address: '', apartment: '', city: '', country: 'Pakistan', postalCode: '', notes: '' });
   const [formErrors, setFormErrors] = useState({});
   const [placing, setPlacing] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState('cod'); // 'cod' | 'card' | 'wallet'
-  const [cardDetails, setCardDetails] = useState({ number: '', holder: '', expiry: '', cvv: '' });
-  const [walletType, setWalletType] = useState('easypaisa'); // 'easypaisa' | 'jazzcash'
-  const [walletPhone, setWalletPhone] = useState('');
 
   const subtotal = cart.reduce((sum, item) => sum + Number(item.price) * item.quantity, 0);
   const shipping = subtotal >= SHIPPING_THRESHOLD ? 0 : SHIPPING_FEE;
-  const discount = appliedCoupon ? Math.round((subtotal * COUPONS[appliedCoupon]) / 100) : 0;
+  // Indicative only. The server re-prices everything, including the coupon,
+  // and its figures are what get charged.
+  const discount = appliedCoupon ? Math.round((subtotal * appliedCoupon.percent) / 100) : 0;
   const total = subtotal + shipping - discount;
 
-  const applyCoupon = () => {
+  const applyCoupon = async () => {
     const code = couponInput.trim().toUpperCase();
-    if (COUPONS[code]) {
-      setAppliedCoupon(code);
-      setCouponError('');
+    if (!code) return;
+    setCouponError('');
+    try {
+      const res = await fetch(`/api/coupons/${encodeURIComponent(code)}`);
+      const data = await res.json();
+      if (!res.ok) {
+        setCouponError(data.error || 'That code is not valid.');
+        setAppliedCoupon(null);
+        return;
+      }
+      setAppliedCoupon(data);
       setCouponInput('');
-    } else {
-      setCouponError('Invalid coupon code.');
+    } catch {
+      setCouponError('Could not check that code. Please try again.');
       setAppliedCoupon(null);
     }
   };
@@ -65,25 +63,12 @@ export default function Checkout() {
   };
 
   const validateForm = () => {
-    const errors = {};
-    if (!checkoutForm.name.trim()) errors.name = 'Full name is required';
-    if (!checkoutForm.email.trim()) errors.email = 'Email is required';
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(checkoutForm.email)) errors.email = 'Enter a valid email';
-    if (!checkoutForm.phone.trim()) errors.phone = 'Phone number is required';
-    if (!checkoutForm.address.trim()) errors.address = 'Address is required';
-    if (!checkoutForm.city.trim()) errors.city = 'City is required';
-    if (!checkoutForm.country.trim()) errors.country = 'Country is required';
-    if (paymentMethod === 'card') {
-      if (!cardDetails.number.replace(/\s/g, '').match(/^\d{16}$/)) errors.cardNumber = 'Enter a valid 16-digit card number';
-      if (!cardDetails.holder.trim()) errors.cardHolder = 'Cardholder name is required';
-      if (!cardDetails.expiry.match(/^(0[1-9]|1[0-2])\/\d{2}$/)) errors.cardExpiry = 'Enter expiry as MM/YY';
-      if (!cardDetails.cvv.match(/^\d{3,4}$/)) errors.cardCvv = 'Enter a valid CVV';
-    }
-    if (paymentMethod === 'wallet') {
-      if (!walletPhone.trim().match(/^03\d{9}$/)) errors.walletPhone = 'Enter a valid Pakistani mobile number (03XXXXXXXXX)';
-    }
+    // Same validator the API runs, so the browser cannot accept something the
+    // server will reject. Phone is required and format-checked: it is how a
+    // cash-on-delivery customer actually gets reached.
+    const { valid, errors } = validateCustomer(checkoutForm);
     setFormErrors(errors);
-    return Object.keys(errors).length === 0;
+    return valid;
   };
 
   const handlePlaceOrder = async () => {
@@ -92,38 +77,62 @@ export default function Checkout() {
 
     setPlacing(true);
     try {
-      const orderData = {
-        items: cart,
-        customer: checkoutForm,
-        userId: user?.uid || null,
-        userEmail: user?.email || checkoutForm.email || null,
-        subtotal,
-        shipping,
-        discount,
-        total,
-        coupon: appliedCoupon || null,
-        paymentMethod: paymentMethod === 'cod' ? 'COD' : paymentMethod === 'card' ? 'Card' : paymentMethod === 'bank' ? 'Bank Deposit' : `Wallet (${walletType})`,
-        status: 'Pending',
-        createdAt: new Date(),
-      };
+      const res = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          // Only ids and quantities: the server prices the order itself.
+          cart: cart.map((item) => ({ id: item.id, quantity: item.quantity })),
+          customer: checkoutForm,
+          couponCode: appliedCoupon?.code || null,
+          userId: user?.uid || null,
+          userEmail: user?.email || checkoutForm.email || null,
+        }),
+      });
 
-      await addDoc(collection(db, 'orders'), orderData);
+      const data = await res.json();
+
+      if (!res.ok) {
+        if (data.fieldErrors) setFormErrors(data.fieldErrors);
+        Swal.fire({
+          title: 'Order not placed',
+          text: data.error || 'Please try again.',
+          icon: 'error',
+          background: '#111',
+          color: '#fff',
+          confirmButtonColor: '#C9A96E',
+        });
+        return;
+      }
+
       clearCart();
 
       Swal.fire({
-        title: 'Order Placed!',
-        html: `<p>Thank you, <strong>${checkoutForm.name}</strong>!</p><p>Your order has been received and will be delivered soon.</p>`,
+        title: 'Order placed',
+        html:
+          `<p>Thank you, <strong>${checkoutForm.name}</strong>.</p>` +
+          `<p style="margin-top:12px">Your order number is<br/>` +
+          `<strong style="color:#C9A96E;font-size:18px;letter-spacing:1px">${data.orderNumber}</strong></p>` +
+          `<p style="margin-top:12px;font-size:13px;color:#aaa">` +
+          `Pay ${formatPKR(data.total)} in cash when it arrives. We will call to confirm.</p>`,
         icon: 'success',
         background: '#111',
         color: '#fff',
         confirmButtonColor: '#C9A96E',
-        confirmButtonText: 'Continue Shopping',
+        confirmButtonText: 'Continue shopping',
       }).then(() => {
         window.location.href = '/products';
       });
     } catch (err) {
       console.error('Order error:', err);
-      Swal.fire({ title: 'Error', text: 'Failed to place order. Please try again.', icon: 'error', background: '#111', color: '#fff', confirmButtonColor: '#C9A96E' });
+      Swal.fire({
+        title: 'Something went wrong',
+        text: 'We could not reach the server. Please check your connection and try again.',
+        icon: 'error',
+        background: '#111',
+        color: '#fff',
+        confirmButtonColor: '#C9A96E',
+      });
     } finally {
       setPlacing(false);
     }
@@ -217,7 +226,7 @@ export default function Checkout() {
               </h3>
               {appliedCoupon ? (
                 <div className="flex items-center justify-between bg-[#C9A96E]/10 border border-[#C9A96E]/30 px-4 py-2.5">
-                  <span className="text-sm text-[#C9A96E] font-mono font-semibold">{appliedCoupon} — {COUPONS[appliedCoupon]}% off</span>
+                  <span className="text-sm text-[#C9A96E] font-mono font-semibold">{appliedCoupon.code} — {appliedCoupon.percent}% off</span>
                   <button onClick={removeCoupon} className="text-[#666] hover:text-white text-xs">Remove</button>
                 </div>
               ) : (
@@ -239,7 +248,6 @@ export default function Checkout() {
                 </div>
               )}
               {couponError && <p className="text-red-400 text-xs mt-2">{couponError}</p>}
-              <p className="text-xs text-[#555] mt-2">Try: WELCOME20, SAVE10, ASFF15</p>
             </div>
           </div>
 
@@ -374,204 +382,22 @@ export default function Checkout() {
                 />
               </div>
 
-              {/* Payment method selector */}
+              {/* Payment — cash on delivery only.
+                  The card and wallet options here were disabled "Coming Soon"
+                  panels with no radio input, yet ~110 lines of forms, state and
+                  validation sat behind them, and Bank Deposit published a
+                  placeholder account number a customer could have paid into. */}
               <div className="mt-5">
-                <h4 className="text-sm font-semibold text-white mb-3">Payment Method</h4>
-                <div className="space-y-2">
-
-                  {/* COD — active */}
-                  {[
-                    { id: 'cod',  label: 'Cash on Delivery', sub: 'Pay when you receive your order', icon: <Banknote className="w-4 h-4" /> },
-                    { id: 'bank', label: 'Bank Deposit',      sub: 'Direct bank transfer',            icon: <CreditCard className="w-4 h-4" /> },
-                  ].map((opt) => (
-                    <label
-                      key={opt.id}
-                      className={`flex items-center gap-3 p-3  border cursor-pointer transition-colors ${
-                        paymentMethod === opt.id
-                          ? 'border-[#C9A96E]/60 bg-[#C9A96E]/5'
-                          : 'border-[#1e1e1e] hover:border-[#2a2a2a]'
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="paymentMethod"
-                        value={opt.id}
-                        checked={paymentMethod === opt.id}
-                        onChange={() => setPaymentMethod(opt.id)}
-                        className="accent-[#C9A96E]"
-                      />
-                      <span className={paymentMethod === opt.id ? 'text-[#C9A96E]' : 'text-[#888]'}>{opt.icon}</span>
-                      <div>
-                        <p className="text-sm font-medium text-white">{opt.label}</p>
-                        <p className="text-xs text-[#666]">{opt.sub}</p>
-                      </div>
-                    </label>
-                  ))}
-
-                  {/* Card + Wallet — locked / coming soon */}
-                  {[
-                    { id: 'card',   label: 'Debit / Credit Card', sub: 'Visa, Mastercard, UnionPay', icon: <CreditCard className="w-4 h-4" /> },
-                    { id: 'wallet', label: 'Mobile Wallet',        sub: 'Easypaisa or JazzCash',      icon: <Wallet className="w-4 h-4" /> },
-                  ].map((opt) => (
-                    <div
-                      key={opt.id}
-                      className="flex items-center gap-3 p-3 border border-[#1e1e1e] opacity-50 cursor-not-allowed select-none"
-                    >
-                      <Lock className="w-3.5 h-3.5 text-[#555] shrink-0" />
-                      <span className="text-[#555]">{opt.icon}</span>
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-[#666]">{opt.label}</p>
-                        <p className="text-xs text-[#555]">{opt.sub}</p>
-                      </div>
-                      <span className="text-[10px] font-semibold tracking-wider uppercase text-[#555] border border-[#232323] px-2 py-0.5 rounded-full shrink-0">
-                        Coming Soon
-                      </span>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Card details */}
-                {paymentMethod === 'card' && (
-                  <div className="mt-3 space-y-3 p-4 bg-[#111] border border-[#1e1e1e]">
-                    <div className="flex items-center gap-2 mb-1">
-                      <Lock className="w-3.5 h-3.5 text-green-400" />
-                      <span className="text-xs text-green-400">Secured & encrypted</span>
-                    </div>
-                    {/* Card number */}
-                    <div>
-                      <input
-                        type="text"
-                        placeholder="Card Number"
-                        maxLength={19}
-                        value={cardDetails.number}
-                        onChange={(e) => {
-                          const raw = e.target.value.replace(/\D/g, '').slice(0, 16);
-                          const fmt = raw.match(/.{1,4}/g)?.join(' ') || raw;
-                          setCardDetails((d) => ({ ...d, number: fmt }));
-                        }}
-                        className={`w-full bg-[#0a0a0a] border  px-3 py-2.5 text-sm text-white placeholder-[#444] outline-none tracking-widest ${
-                          formErrors.cardNumber ? 'border-red-500' : 'border-[#232323] focus:border-[#C9A96E]/50'
-                        }`}
-                      />
-                      {formErrors.cardNumber && <p className="text-red-400 text-xs mt-1">{formErrors.cardNumber}</p>}
-                    </div>
-                    {/* Cardholder */}
-                    <div>
-                      <input
-                        type="text"
-                        placeholder="Cardholder Name"
-                        value={cardDetails.holder}
-                        onChange={(e) => setCardDetails((d) => ({ ...d, holder: e.target.value }))}
-                        className={`w-full bg-[#0a0a0a] border  px-3 py-2.5 text-sm text-white placeholder-[#444] outline-none ${
-                          formErrors.cardHolder ? 'border-red-500' : 'border-[#232323] focus:border-[#C9A96E]/50'
-                        }`}
-                      />
-                      {formErrors.cardHolder && <p className="text-red-400 text-xs mt-1">{formErrors.cardHolder}</p>}
-                    </div>
-                    {/* Expiry + CVV */}
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <input
-                          type="text"
-                          placeholder="MM/YY"
-                          maxLength={5}
-                          value={cardDetails.expiry}
-                          onChange={(e) => {
-                            let v = e.target.value.replace(/\D/g, '').slice(0, 4);
-                            if (v.length > 2) v = v.slice(0, 2) + '/' + v.slice(2);
-                            setCardDetails((d) => ({ ...d, expiry: v }));
-                          }}
-                          className={`w-full bg-[#0a0a0a] border  px-3 py-2.5 text-sm text-white placeholder-[#444] outline-none ${
-                            formErrors.cardExpiry ? 'border-red-500' : 'border-[#232323] focus:border-[#C9A96E]/50'
-                          }`}
-                        />
-                        {formErrors.cardExpiry && <p className="text-red-400 text-xs mt-1">{formErrors.cardExpiry}</p>}
-                      </div>
-                      <div>
-                        <input
-                          type="password"
-                          placeholder="CVV"
-                          maxLength={4}
-                          value={cardDetails.cvv}
-                          onChange={(e) => setCardDetails((d) => ({ ...d, cvv: e.target.value.replace(/\D/g, '').slice(0, 4) }))}
-                          className={`w-full bg-[#0a0a0a] border  px-3 py-2.5 text-sm text-white placeholder-[#444] outline-none ${
-                            formErrors.cardCvv ? 'border-red-500' : 'border-[#232323] focus:border-[#C9A96E]/50'
-                          }`}
-                        />
-                        {formErrors.cardCvv && <p className="text-red-400 text-xs mt-1">{formErrors.cardCvv}</p>}
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Wallet details */}
-                {paymentMethod === 'wallet' && (
-                  <div className="mt-3 space-y-3 p-4 bg-[#111] border border-[#1e1e1e]">
-                    {/* Wallet type toggle */}
-                    <div className="flex gap-2">
-                      {['easypaisa', 'jazzcash'].map((w) => (
-                        <button
-                          key={w}
-                          type="button"
-                          onClick={() => setWalletType(w)}
-                          className={`flex-1 py-2  text-sm font-semibold border transition-colors capitalize ${
-                            walletType === w
-                              ? 'bg-[#C9A96E] border-[#C9A96E] text-black'
-                              : 'border-[#232323] text-[#888] hover:border-[#2e2e2e]'
-                          }`}
-                        >
-                          {w === 'easypaisa' ? 'Easypaisa' : 'JazzCash'}
-                        </button>
-                      ))}
-                    </div>
-                    {/* Wallet phone */}
-                    <div>
-                      <input
-                        type="tel"
-                        placeholder="Registered mobile number (03XXXXXXXXX)"
-                        value={walletPhone}
-                        onChange={(e) => setWalletPhone(e.target.value.replace(/\D/g, '').slice(0, 11))}
-                        className={`w-full bg-[#0a0a0a] border  px-3 py-2.5 text-sm text-white placeholder-[#444] outline-none ${
-                          formErrors.walletPhone ? 'border-red-500' : 'border-[#232323] focus:border-[#C9A96E]/50'
-                        }`}
-                      />
-                      {formErrors.walletPhone && <p className="text-red-400 text-xs mt-1">{formErrors.walletPhone}</p>}
-                    </div>
-                    <p className="text-xs text-[#666]">You will receive a payment request on your {walletType === 'easypaisa' ? 'Easypaisa' : 'JazzCash'} account.</p>
-                  </div>
-                )}
-
-                {/* Bank deposit details */}
-                {paymentMethod === 'bank' && (
-                  <div className="mt-3 p-4 bg-[#111] border border-[#1e1e1e] space-y-3">
-                    <p className="text-xs text-[#888] leading-relaxed">
-                      Transfer the total amount to the account below and place your order. Your order will be processed once payment is confirmed.
+                <h4 className="text-sm font-semibold text-white mb-3">Payment</h4>
+                <div className="flex items-start gap-3 border border-[#C9A96E]/30 bg-[#C9A96E]/5 p-4">
+                  <Banknote className="w-5 h-5 text-[#C9A96E] shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-sm text-[#f5f5f0] font-medium">Cash on delivery</p>
+                    <p className="text-xs text-[#888] mt-1">
+                      Pay in cash when your order arrives. We will call to confirm before dispatch.
                     </p>
-                    <div className="space-y-2.5">
-                      {[
-                        { label: 'A/C Title', value: 'A.S Fragrance' },
-                        { label: 'A/C #',     value: '1234567890' },
-                        { label: 'IBAN #',    value: 'PK36MEZN0001234567890101' },
-                        { label: 'Bank',      value: 'Meezan Bank' },
-                      ].map(({ label, value }) => (
-                        <div key={label} className="py-2 border-b border-[#1e1e1e] last:border-0">
-                          <div className="flex items-center justify-between gap-2">
-                            <span className="text-xs text-[#666] shrink-0 w-16">{label}</span>
-                            <button
-                              type="button"
-                              onClick={() => navigator.clipboard.writeText(value)}
-                              className="text-[10px] text-[#C9A96E] border border-[#C9A96E]/30 hover:border-[#C9A96E] px-2 py-0.5 transition-colors shrink-0"
-                            >
-                              Copy
-                            </button>
-                          </div>
-                          <span className="text-sm font-mono font-medium text-white break-all mt-1 block">{value}</span>
-                        </div>
-                      ))}
-                    </div>
-                    <p className="text-xs text-yellow-500/80">Please include your name as the payment reference.</p>
                   </div>
-                )}
+                </div>
               </div>
 
               <button
