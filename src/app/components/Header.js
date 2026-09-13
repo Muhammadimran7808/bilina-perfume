@@ -17,7 +17,7 @@ const NAV = [
 
 const ANNOUNCEMENTS = [
   '✦  Free delivery on orders over Rs 2,000',
-  '✦  Use code WELCOME20 for 20% off your first order',
+  '✦  New arrivals in store now',
   '✦  Authentic luxury fragrances — crafted with passion',
   '✦  Cash on Delivery available nationwide',
 ];

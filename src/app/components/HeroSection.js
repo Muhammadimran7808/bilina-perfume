@@ -254,18 +254,18 @@ export default function HeroSection() {
       <section className="mx-4 md:mx-8 mb-24 border border-[#C9A96E]/20 bg-[#0d0d0d] relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_#C9A96E08_0%,_transparent_70%)]" />
         <div className="relative z-10 text-center px-8 py-16 md:py-20">
+          {/* No promo code here. Codes are shared on WhatsApp and Facebook, so
+              printing one on the homepage would hand it to every visitor and
+              make it permanent. */}
           <p className="text-[#C9A96E] text-[11px] font-semibold tracking-[0.3em] uppercase mb-4">
-            Limited Time Offer
+            Follow us
           </p>
           <h2 className="font-playfair text-4xl md:text-5xl font-bold text-[#f5f5f0] mb-4">
-            20% Off Your First Order
+            Offers drop on our socials
           </h2>
           <p className="text-[#666] mb-8 max-w-md mx-auto text-[15px]">
-            Use code{' '}
-            <span className="font-mono font-bold text-[#C9A96E] bg-[#C9A96E]/10 px-2 py-0.5">
-              WELCOME20
-            </span>{' '}
-            at checkout. New customers only.
+            Promo codes and new arrivals go out on WhatsApp and Facebook first. Enter your code at
+            checkout to redeem it.
           </p>
           <button
             onClick={() => router.push('/products')}

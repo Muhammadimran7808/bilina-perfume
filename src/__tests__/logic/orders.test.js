@@ -160,3 +160,41 @@ describe('validateCustomer', () => {
     expect(validateCustomer({ ...valid, email: 'nope' }).errors.email).toBeTruthy();
   });
 });
+
+describe('priceOrder — subtotal edge cases', () => {
+  it('is zero for an empty cart', () => {
+    expect(priceOrder([], catalogue({})).subtotal).toBe(0);
+  });
+
+  it('sums several lines', () => {
+    const result = priceOrder(
+      [
+        { id: 'a', quantity: 1 },
+        { id: 'b', quantity: 3 },
+      ],
+      catalogue({ a: product({ price: 1000 }), b: product({ price: 500 }) })
+    );
+    expect(result.subtotal).toBe(2500);
+  });
+
+  it('copes with a price stored as a string', () => {
+    // Older products predate the admin form coercing numbers, so Firestore can
+    // still hold "500" rather than 500.
+    const result = priceOrder([{ id: 'a', quantity: 2 }], catalogue({ a: product({ price: '500' }) }));
+    expect(result.subtotal).toBe(1000);
+  });
+
+  it('treats a non-numeric price as zero rather than NaN', () => {
+    const result = priceOrder([{ id: 'a', quantity: 2 }], catalogue({ a: product({ price: 'abc' }) }));
+    expect(Number.isNaN(result.subtotal)).toBe(false);
+    expect(result.subtotal).toBe(0);
+  });
+
+  it('rounds a fractional discount to whole rupees', () => {
+    const result = priceOrder([{ id: 'a', quantity: 1 }], catalogue({ a: product({ price: 333 }) }), {
+      code: 'TEN',
+      percent: 10,
+    });
+    expect(result.discount).toBe(33);
+  });
+});
